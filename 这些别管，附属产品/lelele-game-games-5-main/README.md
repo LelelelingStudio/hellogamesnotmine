@@ -1,0 +1,54 @@
+# HTML-Games
+
+个人小游戏合集 —— 零构建、双击即玩的 Web / HTML5 游戏，每款游戏一个独立子目录，后续新增游戏直接加目录即可。
+
+**入口引导页**：根目录 [`index.html`](index.html) 是一张导航卡片，分别进入各款游戏及其子版本（打开即玩）。
+
+## 游戏一览
+
+| 目录 | 游戏 | 技术栈 | 玩法 | 运行方式 |
+|------|------|--------|------|----------|
+| `gravity/` | **引力带我前行**（Gravity） | 原生 HTML/CSS/JS，单文件 | 弹弓式发射无动力火箭，借行星引力场绕行命中目标；预测线与实飞共用同一积分器，保证"所见即所飞" | 浏览器直接打开 `index.html` |
+| `hunt/` | **弓猎** | Godot 4.7 (GDScript)，可导出 HTML5；`web/` 另有 Three.js 纯网页复刻版 | 球形星球表面弓箭狩猎：熊 / 鹿 / 鸟三种猎物，计时狩猎与配额狩猎双模式，厚皮 / 迅捷 / 蛮力等难度徽章；支持触屏虚拟摇杆 + PWA 离线游玩 | 浏览器打开 `web/index.html`（网页版）；或用 Godot 4.7 打开 `hunt/project.godot` 编辑，`docs/` 为 HTML5 导出产物可直接部署 |
+| `warship/` | **风帆王者** | Phaser 3 + Three.js（本地 vendored，无需服务器） | 风帆舰队海战：借风向操舵、侧舷齐射、舰队 AI、编队与升级、关卡推进 | 浏览器直接打开 `25D/index.html`（2.5D 俯视版）或 `3D/index.html`（3D 球面版） |
+| `boids/` | **鸟群 Boids** | 原生 HTML/CSS/JS，单文件 | 经典 Reynolds 三规则（分离 / 对齐 / 聚合）驱动的鸟群涌现；可调权重、感知半径、数量，鼠标可吸引或驱散；空间网格优化支撑数百只实时模拟 | 浏览器直接打开 `index.html` |
+| `magnetic/` | **粒子花火**（Magnetic Collider） | 原生 HTML/CSS/JS，单文件 | 洛伦兹力磁场解谜：拖拽磁极 / 调强度 / 翻转 N·S，设计磁场让带电粒子偏转命中靶标；预测线与实飞共用同一积分器，保证"所见即所飞" | 浏览器直接打开 `index.html` |
+| `racecar/` | **霓虹漂移**（Neon Drift） | 原生 HTML/CSS/JS，单文件 | 2D 俯视漂移赛车：键盘驾驶、高速入弯触发漂移（侧滑 / 胎痕 / 烟雾连击积分），三条难度赛道 + 检查点防抄近道 + 圈速计时评级 S/A/B/C；含迷你地图、幽灵车、本地最佳成绩、WebAudio 合成引擎/碰撞音效 | 浏览器直接打开 `index.html` |
+
+> warship 的 `archive/` 为早期"风帆舰队对轰"原型，`smoke.js` 为无头冒烟测试脚本（Node 驱动 Phaser 桩跑通战斗场景）。
+
+## 目录结构
+
+```
+HTMLGames/
+├── gravity/          # 引力弹道解谜（单文件 MVP + 设计文档）
+│   ├── index.html
+│   ├── 设计计划.md
+│   └── 关卡设计梳理.md
+├── hunt/             # 弓猎（Godot 4.7）
+│   ├── hunt/         # Godot 工程源码
+│   ├── web/          # Three.js 纯网页复刻版
+│   ├── docs/         # Godot HTML5 导出产物（GitHub Pages 部署目录）
+│   ├── bow/          # 弓武器原型
+│   └── bullet/       # 弹道原型
+├── boids/           # 鸟群算法模拟（单文件 Boids + 控制面板）
+├── warship/          # 风帆王者（Phaser 3）
+│   ├── 25D/          # 2.5D 俯视版
+│   ├── 3D/           # 3D 球面版（Three.js 地球仪）
+│   ├── archive/      # 早期原型
+│   └── smoke.js      # 冒烟测试
+├── magnetic/        # 粒子花火（Magnetic Collider · 洛伦兹力磁场解谜，单文件）
+└── racecar/         # 霓虹漂移（Neon Drift · 2D 俯视漂移赛车，单文件）
+```
+
+## 约定
+
+- **零构建**：不使用 npm / bundler，第三方库一律本地 vendored（`lib/` 目录），经典 `<script>` 标签按依赖顺序加载，双击 HTML 即可离线游玩。
+- **一游戏一目录**：新增游戏时新建独立子目录，自带 README（可选）与 LICENSE 遵循根协议。
+- Godot 工程忽略 `.godot/`（编辑器缓存）与 `.venv/`（本地虚拟环境）；大型二进制 `*.wasm` / `*.pck` 仅 `hunt/docs/` 部署目录例外保留。
+
+## License
+
+This project is licensed under the [GNU General Public License v3.0](LICENSE) - Copyright (C) 2026 highwindmx.
+
+You are free to use, modify, and distribute the code, provided that any derivative work is released under the same GPL-3.0 license.

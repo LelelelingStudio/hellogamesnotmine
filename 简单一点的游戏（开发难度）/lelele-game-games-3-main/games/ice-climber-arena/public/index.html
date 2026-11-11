@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>敲冰块大逃杀 · Ice-Climber Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%A7%97%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+  <!-- ===================== MENU / CHARACTER CREATOR ===================== -->
+  <div id="menu" class="screen">
+    <div class="snow-layer" aria-hidden="true"></div>
+    <div class="menu-card">
+      <header class="menu-head">
+        <h1>敲冰块大逃杀</h1>
+        <p class="subtitle">Ice-Climber Arena · 多人攀塔求生</p>
+        <p class="round-banner">开服后第 <span id="menu-round">…</span> 局进行中 · 在线 <span id="menu-online">0</span> 人</p>
+      </header>
+
+      <div class="menu-body">
+        <!-- character creator -->
+        <section class="creator">
+          <div class="preview-wrap">
+            <canvas id="preview" width="200" height="240"></canvas>
+            <div class="preview-stage"></div>
+          </div>
+          <div class="creator-fields">
+            <label class="field">
+              <span>名字</span>
+              <input id="name-input" maxlength="12" placeholder="给你的攀登者起名" autocomplete="off" />
+            </label>
+
+            <div class="field">
+              <span>帽子样式</span>
+              <div id="style-row" class="chip-row"></div>
+            </div>
+
+            <div class="field">
+              <span>肤色</span>
+              <div id="skin-row" class="swatch-row"></div>
+            </div>
+
+            <div class="field">
+              <span>服饰颜色</span>
+              <div id="outfit-row" class="swatch-row"></div>
+            </div>
+
+            <div class="field">
+              <span>帽子颜色</span>
+              <div id="hat-row" class="swatch-row"></div>
+            </div>
+
+            <button id="start-btn" class="start-btn">开始攀登 ▶</button>
+            <p class="hint">方向键 ← → 移动 · ↑ 跳跃 · A 道具攻击（需拾取火球）</p>
+          </div>
+        </section>
+
+        <!-- leaderboard -->
+        <section class="leaderboard">
+          <h2>🏆 历史最快纪录</h2>
+          <ol id="menu-board" class="board-list">
+            <li class="board-empty">尚无纪录，去创造第一个吧！</li>
+          </ol>
+          <p class="board-note">按逃生用时排名 · 记录创造时所在局数</p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================== GAME =============================== -->
+  <div id="game" class="screen hidden">
+    <div class="stage">
+      <!-- 16:9 play frame — JS sizes it to the largest box that fits the
+           viewport, so the canvas scales uniformly (letterboxed) not stretched -->
+      <div class="frame" id="frame">
+        <canvas id="view" width="1600" height="900"></canvas>
+
+        <!-- UI layer: authored in the same 1600×900 space as the canvas and
+             scaled by the same factor, so the HUD never stretches either -->
+        <div class="ui" id="ui">
+
+      <!-- HUD overlay -->
+      <div class="hud">
+        <div class="hud-tl">
+          <div class="hud-stat"><span class="lbl">第</span><b id="hud-round">1</b><span class="lbl">局</span></div>
+          <div class="hud-stat"><span class="lbl">楼层</span><b id="hud-floor">1</b><span class="lbl">/10</span></div>
+          <div class="hp">
+            <div class="hp-bar"><div id="hp-fill" class="hp-fill"></div></div>
+            <span id="hp-text">100</span>
+          </div>
+          <div id="buffs" class="buffs"></div>
+          <button id="settings-btn" class="hud-btn" type="button" aria-label="设置" title="设置（Esc）">⚙️</button>
+        </div>
+
+        <div class="hud-tc">
+          <div class="timer" id="timer">00:00</div>
+          <div id="depart" class="depart hidden">
+            <span class="dep-ico">✈️</span>救援机撤离 <b id="depart-count">30</b>s
+          </div>
+          <div id="spectate" class="spectate hidden">
+            <span class="sp-eye">🔭</span>
+            <span class="sp-text">观战模式 · 你已第 <b id="sp-rank">1</b> 名逃生</span>
+          </div>
+        </div>
+
+        <div class="hud-tr">
+          <div class="rank-head">实时排行</div>
+          <div class="rank-body">
+            <canvas id="mini" width="64" height="184"></canvas>
+            <ol id="rank-list" class="rank-list"></ol>
+          </div>
+        </div>
+
+        <div id="toasts" class="toasts"></div>
+
+        <div class="hud-bc" id="controls-hint">← → 移动 · ↑ 跳 · A 道具攻击（需火球）</div>
+
+        <!-- bottom-left chat -->
+        <div class="panel-chat">
+          <div class="chat-log" id="chatLog"></div>
+          <form id="chatForm" class="chat-form" autocomplete="off">
+            <input id="chatInput" maxlength="80" placeholder="按 Enter 聊天…" inputmode="text" />
+          </form>
+        </div>
+      </div>
+
+      <!-- round-end / intermission overlay -->
+      <div id="round-overlay" class="overlay hidden">
+        <div class="overlay-card">
+          <h2 id="ov-title">本局结束</h2>
+          <ol id="ov-results" class="results"></ol>
+          <div class="ov-board">
+            <h3>历史最快纪录</h3>
+            <ol id="ov-board" class="board-list small"></ol>
+          </div>
+          <p class="ov-next">下一局 <span id="ov-count">8</span> 秒后开始…</p>
+        </div>
+      </div>
+
+      <!-- personal victory banner -->
+      <div id="win-banner" class="win-banner hidden">
+        <div class="win-inner">
+          <div class="win-emoji">✈️</div>
+          <h2>逃生成功！</h2>
+          <p id="win-detail">第 1 名 · 用时 00:00</p>
+        </div>
+      </div>
+
+      <div id="conn-status" class="conn-status">连接中…</div>
+
+      <!-- personal death banner -->
+      <div id="death-banner" class="death-banner hidden">
+        <div class="death-inner">
+          <div class="death-emoji">💀</div>
+          <h2>你倒下了</h2>
+          <p id="death-reason">意外坠落</p>
+          <p class="death-tip">即将在起点重生…</p>
+        </div>
+      </div>
+
+      <!-- 新一局开始 banner -->
+      <div id="round-start-banner" class="round-start-banner hidden">
+        <div class="rs-inner"><div class="rs-emoji">🚀</div>
+          <h2 id="rs-title">第 1 局开始！</h2>
+          <p id="rs-sub">冲上顶高，争夺冠军</p>
+        </div>
+      </div>
+
+      <!-- 设置 / 暂停菜单 -->
+      <div id="settings-overlay" class="overlay settings-overlay hidden">
+        <div class="overlay-card settings-card">
+          <h2>⚙️ 设置</h2>
+          <div class="settings-toggles">
+            <button id="toggle-music" class="set-toggle" type="button" aria-pressed="true">
+              <span class="set-ico">🎵</span><span class="set-name">音乐</span><span class="set-state">开</span>
+            </button>
+            <button id="toggle-sfx" class="set-toggle" type="button" aria-pressed="true">
+              <span class="set-ico">🔊</span><span class="set-name">音效</span><span class="set-state">开</span>
+            </button>
+          </div>
+          <div class="settings-actions">
+            <button id="set-resume" class="set-btn primary" type="button">▶ 继续游戏</button>
+            <button id="set-tochar" class="set-btn" type="button">👤 回到选择角色</button>
+            <button id="set-quit" class="set-btn danger" type="button">⏏ 退出游戏</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 退出后的告别屏 -->
+      <div id="bye-overlay" class="bye-overlay hidden">
+        <div class="bye-inner">
+          <div class="bye-emoji">👋</div>
+          <h2>已退出游戏</h2>
+          <p>感谢游玩 · 敲冰块大逃杀</p>
+          <button id="bye-reenter" class="set-btn primary" type="button">↻ 重新进入</button>
+        </div>
+      </div>
+      </div><!-- .ui -->
+      </div><!-- .frame -->
+
+      <!-- on-screen touch controls (mobile only; viewport-space, never scaled) -->
+      <div id="touch-controls" aria-hidden="true">
+        <div class="tc-cluster tc-left">
+          <button class="tc-btn" id="tc-left" aria-label="?????????"左移">◀</button>
+          <button class="tc-btn" id="tc-right" aria-label="右移">▶</button>
+        </div>
+        <div class="tc-cluster tc-right">
+          <button class="tc-btn tc-attack" id="tc-attack" aria-label="道具攻击（需火球）">✊</button>
+          <button class="tc-btn tc-jump" id="tc-jump" aria-label="跳跃">▲</button>
+        </div>
+        <button class="tc-btn tc-chat" id="tc-chat" aria-label="聊天">💬</button>
+      </div>
+
+      <!-- portrait nudge (mobile only) -->
+      <div id="rotate-hint" aria-hidden="true">
+        <div class="rotate-inner">
+          <div class="rotate-icon">📱</div>
+          <p>请横屏游戏</p>
+          <span>横向握持手机以获得最佳体验</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

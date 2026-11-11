@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>大乱斗 · Arena Brawl</title>
+<link rel="stylesheet" href="css/style.css?v=20260725" />
+</head>
+<body>
+
+<!-- ============================ MENU ============================ -->
+<section id="menu" class="screen show">
+  <div class="menu-bg" aria-hidden="true"><div class="aurora aurora-a"></div><div class="aurora aurora-b"></div><div class="aurora aurora-c"></div><div class="stars"></div></div>
+  <div class="menu-card">
+    <h1 class="logo">大乱斗 <span>ARENA&nbsp;BRAWL</span></h1>
+    <p class="tagline">一张大地图，全世界同服开打 · 选个职业，立刻进场</p>
+
+    <label class="field">
+      <span>你的名字</span>
+      <input id="nameInput" maxlength="14" placeholder="输入昵称…" autocomplete="off" />
+    </label>
+
+    <div class="class-pick" id="classPick"><!-- class cards injected by JS --></div>
+
+    <button id="playBtn" class="play-btn"><span class="btn-spin" aria-hidden="true"></span><span class="btn-label">进入大乱斗 ⚔</span></button>
+    <button id="spectateBtn" class="spectate-btn"><span class="spec-btn-label">&#128065; 观战模式</span><span class="spec-btn-count" id="specBtnCount" hidden></span></button>
+    <p class="hint">方向键移动 · <b>A</b> 普通攻击 · <b>1</b> 技能 · <b>Enter</b> 聊天 · <b>E</b> 商店 · <b>Esc</b> 设置</p>
+
+    <p class="mobile-hint">手机操作：左下摇杆移动，右下按钮攻击和施放技能</p>
+
+    <div class="menu-board">
+      <h3>🏆 历史排行榜</h3>
+      <ol id="menuHistory" class="mini-board"><li class="empty">暂无记录</li></ol>
+    </div>
+  </div>
+  <div class="conn-status" id="connStatus">连接中…</div>
+  <footer class="menu-footer">
+    <div class="mf-row">
+      <span class="mf-ver">v1.0.0</span>
+      <a class="mf-gh" href="https://github.com/kejilion/game-collection" target="_blank" rel="noopener noreferrer" aria-label="GitHub 仓库">
+        <svg class="mf-gh-ic" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span>GitHub</span>
+      </a>
+    </div>
+    <p class="mf-tip">🎮 适度游戏益脑，沉迷游戏伤身 · 请合理安排时间，享受健康生活</p>
+  </footer>
+</section>
+
+<!-- ============================ GAME ============================ -->
+<section id="game" class="screen">
+  <canvas id="canvas"></canvas>
+
+  <!-- top-center day/night state -->
+  <div class="hud day-night-status" id="dayNightStatus" data-phase="day" aria-live="polite">
+    <div class="dns-viewport"><div class="dns-reel">
+      <span class="dns-phase" data-phase="day">☀ 白昼</span><span class="dns-phase" data-phase="dusk">🌇 黄昏</span><span class="dns-phase" data-phase="night">🌙 夜晚</span><span class="dns-phase" data-phase="dawn">🌤 黎明</span>
+      <span class="dns-phase" data-phase="day">☀ 白昼</span><span class="dns-phase" data-phase="dusk">🌇 黄昏</span><span class="dns-phase" data-phase="night">🌙 夜晚</span><span class="dns-phase" data-phase="dawn">🌤 黎明</span>
+      <span class="dns-phase" data-phase="day">☀ 白昼</span><span class="dns-phase" data-phase="dusk">🌇 黄昏</span><span class="dns-phase" data-phase="night">🌙 夜晚</span><span class="dns-phase" data-phase="dawn">🌤 黎明</span>
+    </div></div>
+  </div>
+
+  <!-- top-left player panel -->
+  <div class="hud panel-player" id="playerPanel">
+    <div class="pp-top">
+      <span class="pp-class" id="ppClass">战士</span>
+      <span class="pp-name" id="ppName">玩家</span>
+      <span class="pp-level" id="ppLevel">Lv.1</span>
+    </div>
+    <div class="bar hp"><div class="bar-fill" id="ppHp"></div><span class="bar-txt" id="ppHpTxt">100/100</span></div>
+    <div class="bar xp"><div class="bar-fill" id="ppXp"></div><span class="bar-txt" id="ppXpTxt">0%</span></div>
+    <div class="pp-stats">
+      <span id="ppGold">💰 0</span>
+      <span id="ppKd">⚔ 0 / ☠ 0</span>
+      <span id="ppLives">❤×0</span>
+    </div>
+    <div class="buff-row" id="buffRow"></div>
+  </div>
+
+  <!-- top-right minimap + leaderboard -->
+  <div class="hud panel-right">
+    <canvas id="minimap" width="190" height="130"></canvas>
+    <div class="board">
+      <div class="board-tabs">
+        <button class="tab active" data-tab="rt">实时</button>
+        <button class="tab" data-tab="hist">历史</button>
+      </div>
+      <ol id="boardRt" class="board-list show"></ol>
+      <ol id="boardHist" class="board-list"></ol>
+    </div>
+  </div>
+
+  <!-- system toast -->
+  <div class="hud toast-wrap" id="toastWrap"></div>
+
+  <!-- 全服击杀播报 -->
+  <div class="hud kill-feed" id="killFeed"></div>
+  <div class="kill-banner" id="killBanner"></div>
+  <div class="kill-cue" id="killCue"></div>
+
+  <!-- bottom-left chat -->
+  <div class="hud panel-chat">
+    <div class="chat-log" id="chatLog"></div>
+    <form id="chatForm" class="chat-form" autocomplete="off">
+      <input id="chatInput" maxlength="80" placeholder="按 Enter 聊天…" />
+    </form>
+  </div>
+
+  <!-- bottom-center skill bar -->
+  <div class="hud skillbar" id="skillbar"></div>
+
+  <!-- mobile controls: movement = virtual stick (left), actions = skill bar (right) -->
+  <div id="mobileControls" aria-label="Mobile game controls">
+    <div id="moveJoystick" role="application" aria-label="Move your character">
+      <span id="moveJoystickKnob"></span>
+    </div>
+    <div id="specJoystick" role="application" aria-label="Pan spectator camera">
+      <span id="specJoystickKnob"></span>
+    </div>
+    <div id="mobileBtns">
+      <button id="mobileSettings" type="button" data-touch-action="settings" aria-label="设置">☰</button>
+      <button id="mobileFs" type="button" aria-label="全屏">⛶</button>
+      <button id="mobileShop" type="button" aria-label="商店">🛒</button>
+      <button id="mobileChat" type="button" aria-label="聊天">💬</button>
+    </div>
+  </div>
+
+  <!-- permanent shop panel (replaces the old consumable merchant shop) -->
+  <section id="permanentShopPanel" class="overlay-panel shop">
+    <div class="op-head"><h3>🏪 商店</h3><button class="op-close" data-close="permanentShop">✕</button></div>
+    <p class="op-sub">靠近商人时可购买 · 你的金币 <b id="permShopGold">0</b></p>
+    <div class="perm-grid" id="permShopGrid"></div>
+  </section>
+
+  <!-- settings menu -->
+  <div class="overlay-panel settings" id="settingsPanel">
+    <div class="op-head"><h3>⚙ 游戏设置</h3><button class="op-close" data-close="settings">✕</button></div>
+    <button class="set-btn" id="btnResume">继续游戏</button>
+    <button class="set-btn" id="btnFullscreen">⛶ 全屏切换</button>
+    <div class="audio-toggle-row" id="audioToggleRow">
+      <button class="set-btn audio-toggle" id="btnToggleMusic" type="button" title="背景音乐开关" aria-pressed="true"><span class="at-ic">🎵</span><span class="at-nm">音乐</span><span class="at-state" id="musicState">开</span></button>
+      <button class="set-btn audio-toggle" id="btnMute" type="button" title="音效开关" aria-pressed="false"><span class="at-ic">🔊</span><span class="at-nm">音效</span><span class="at-state" id="sfxState">开</span></button>
+    </div>
+    <button class="set-btn" id="btnReselect">↩ 重新选择角色</button>
+    <button class="set-btn danger" id="btnQuit">⏻ 退出游戏</button>
+    <p class="op-sub center">提示：方向键移动 · A 攻击 · 1 技能 · E 商店</p>
+  </div>
+
+
+  <!-- spectator mode overlay -->
+  <div class="hud spectator-bar" id="spectatorBar">
+    <div class="spec-badge">👁 观战中</div>
+    <div class="spec-target" id="specTarget">自由视角</div>
+    <div class="spec-controls">
+      <button class="spec-btn" id="specPrev">← 上一个</button>
+      <button class="spec-btn" id="specNext">下一个 →</button>
+      <button class="spec-btn spec-free" id="specFree">自由视角</button>
+      <button class="spec-btn spec-exit" id="specExit">退出观战</button>
+    </div>
+  </div>
+
+  <!-- spectator player list -->
+  <div class="hud spectator-list" id="spectatorList"></div>
+
+  <!-- spectator toolbar (mobile only) -->
+  <div class="hud spec-toolbar" id="specToolbar">
+    <button class="st-btn" id="stPrev" aria-label="上一个玩家">◀</button>
+    <button class="st-btn st-toggle" id="stToggle" aria-label="切换自由/跟随">跟随玩家</button>
+    <button class="st-btn" id="stNext" aria-label="下一个玩家">▶</button>
+    <button class="st-btn st-exit" id="stExit" aria-label="退出观战">退出</button>
+  </div>
+
+  <!-- spectator count badge (shown to all in-game) -->
+  <div class="hud spec-count-badge" id="specCountBadge"></div>
+
+  <!-- respawn overlay -->
+  <div class="respawn" id="respawn">
+    <div class="respawn-card">
+      <div class="skull">☠</div>
+      <h2>你被击败了</h2>
+      <p>复活倒计时 <span id="respawnCount">3</span> 秒…</p>
+    </div>
+  </div>
+
+  <!-- quit screen -->
+  <div class="respawn" id="quitScreen">
+    <div class="respawn-card">
+      <div class="skull">👋</div>
+      <h2>已退出游戏</h2>
+      <p>感谢游玩大乱斗！</p>
+      <button class="set-btn" id="btnBackMenu">返回主菜单</button>
+    </div>
+  </div>
+</section>
+
+<script src="js/net.js?v=20260623"></script>
+<script src="js/input.js?v=20260623"></script>
+<script src="js/render.js?v=20260628c"></script>
+<script src="js/hud.js?v=20260623"></script>
+<script src="js/audio.js?v=20260628d"></script>
+<script src="js/main.js?v=20260630"></script>
+<script>
+  // Audio wiring — runs after main.js. The toggle buttons live inside the
+  // settings (quit) panel; music and sfx are independent switches shown side
+  // by side, kept in sync with Audio prefs and persisted across reloads.
+  (function () {
+    if (!Audio.isSupported) return;
+    Audio.loadPrefs();
+
+    var playBtn  = document.getElementById('playBtn');
+    var specBtn  = document.getElementById('spectateBtn');
+    var musicBtn = document.getElementById('btnToggleMusic');
+    var muteBtn  = document.getElementById('btnMute');
+    var MUSIC_KEY = 'arena.audio.music';
+
+    function musicOn() {
+      try { return localStorage.getItem(MUSIC_KEY) !== '0'; }
+      catch (e) { return true; }
+    }
+    function setMusic(on) {
+      try { localStorage.setItem(MUSIC_KEY, on ? '1' : '0'); } catch (e) {}
+    }
+
+    function ensureAudio() {
+      // Must run inside a user-gesture handler so iOS Safari allows audio.
+      Audio.init();
+      Audio.preload();
+    }
+
+    function syncMusic() {
+      if (!musicBtn) return;
+      var on = musicOn();
+      musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      var st = document.getElementById('musicState');
+      if (st) st.textContent = on ? '开' : '关';
+    }
+    function syncSfx() {
+      if (!muteBtn) return;
+      var on = !Audio.isMuted;
+      muteBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      var st = document.getElementById('sfxState');
+      if (st) st.textContent = on ? '开' : '关';
+    }
+
+    // First user gesture: enter the game. Kick off audio context + preload,
+    // and start the music track if the player left it enabled.
+    function uiTick() { Audio.play('ui-click'); }
+
+    [playBtn, specBtn].forEach(function (btn) {
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        ensureAudio();
+        uiTick();
+        if (musicOn()) Audio.playMusic('bgm-loop');
+      }, { once: false });
+    });
+
+    if (musicBtn) musicBtn.addEventListener('click', function () {
+      ensureAudio();
+      uiTick();
+      var on = !musicOn();
+      setMusic(on);
+      if (on) Audio.playMusic('bgm-loop'); else Audio.stopMusic();
+      syncMusic();
+    });
+
+    if (muteBtn) muteBtn.addEventListener('click', function () {
+      ensureAudio();
+      uiTick();
+      Audio.mute(!Audio.isMuted);
+      syncSfx();
+    });
+
+    syncMusic();
+    syncSfx();
+  })();
+</script>
+</body>
+</html>

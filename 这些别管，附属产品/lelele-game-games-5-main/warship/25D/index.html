@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>风帆王者 · 2.5D 原型</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #0b2a36; overflow: hidden; }
+  #game { width: 100vw; height: 100vh; }
+  canvas { display: block; margin: 0 auto; }
+</style>
+</head>
+<body>
+<div id="game"></div>
+<!-- Phaser 本地 vendored，离线可跑 -->
+<script src="lib/phaser.min.js"></script>
+<!-- 经典 script 标签，按依赖顺序加载，无需构建/服务器 -->
+<script src="src/config/constants.js"></script>
+<script src="src/core/KeyMap.js"></script>
+<script src="src/render/ShipSprite.js"></script>
+<script src="src/core/Wind.js"></script>
+<script src="src/core/Combat.js"></script>
+<script src="src/entities/Ship.js"></script>
+<script src="src/entities/Projectile.js"></script>
+<script src="src/ui/HUD.js"></script>
+<script src="src/config/levels.js"></script>
+<script src="src/core/RunState.js"></script>
+<script src="src/core/Upgrades.js"></script>
+<script src="src/core/FleetAI.js"></script>
+<script src="src/scenes/MenuScene.js"></script>
+<script src="src/scenes/KeyBindScene.js"></script>
+<script src="src/scenes/BattleScene.js"></script>
+<script src="src/scenes/ResultScene.js"></script>
+<script src="src/main.js?v=20260826c"></script>
+<a href="../../index.html" class="b2home" title="返回游戏集合">← 游戏集合</a>
+<style>
+.b2home{position:fixed;top:14px;left:14px;z-index:2147483647;display:inline-flex;align-items:center;gap:4px;
+  font:600 13px/1 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#eef2fb;
+  text-decoration:none;background:rgba(15,20,32,.72);border:1px solid rgba(255,255,255,.22);
+  padding:9px 13px;border-radius:11px;backdrop-filter:blur(4px);box-shadow:0 4px 14px rgba(0,0,0,.35);}
+.b2home:hover{background:rgba(78,161,255,.92);border-color:rgba(78,161,255,.92);}
+</style>
+</body>
+</html>

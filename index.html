@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>下载 Public Free Games</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: radial-gradient(circle at 30% 20%, #1e293b, #0f172a 70%);
+    color: #e2e8f0;
+    padding: 24px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 20px;
+    padding: 40px 32px;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+  }
+
+  .icon {
+    font-size: 52px;
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: 22px;
+    margin: 0 0 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  p {
+    margin: 0 0 28px;
+    font-size: 14px;
+    color: #94a3b8;
+    line-height: 1.6;
+  }
+
+  .filename {
+    display: inline-block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    color: #7dd3fc;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px dashed rgba(56, 189, 248, 0.35);
+    padding: 6px 12px;
+    border-radius: 8px;
+    margin-bottom: 26px;
+    word-break: break-all;
+  }
+
+  button {
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #04202f;
+    background: linear-gradient(135deg, #38bdf8, #22d3ee);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+    box-shadow: 0 8px 24px rgba(56, 189, 248, 0.35);
+  }
+
+  button:hover {
+    filter: brightness(1.08);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(56, 189, 248, 0.45);
+  }
+
+  button:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  button:disabled {
+    filter: grayscale(0.4) brightness(0.8);
+    cursor: progress;
+    transform: none;
+  }
+
+  .status {
+    margin-top: 18px;
+    font-size: 13px;
+    min-height: 20px;
+    color: #4ade80;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .status.show { opacity: 1; }
+  .status.error { color: #f87171; }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="icon">🎮</div>
+    <h1>Public Free Games</h1>
+    <p>点击下方按钮下载游戏压缩包。</p>
+    <div class="filename">publicfreegames.zip</div>
+
+    <button id="downloadBtn">⬇ 下载 ZIP</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    const FILE_NAME = "publicfreegames.zip";
+    const btn = document.getElementById("downloadBtn");
+    const statusEl = document.getElementById("status");
+
+    function showStatus(msg, isError) {
+      statusEl.textContent = msg;
+      statusEl.classList.toggle("error", !!isError);
+      statusEl.classList.add("show");
+    }
+
+    btn.addEventListener("click", function () {
+      btn.disabled = true;
+      showStatus("正在开始下载…", false);
+
+      // 创建临时 <a download> 触发下载
+      const a = document.createElement("a");
+      a.href = FILE_NAME;
+      a.download = FILE_NAME;
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // 稍后恢复按钮
+      setTimeout(() => {
+        btn.disabled = false;
+        showStatus("已触发下载，请查看浏览器下载列表。", false);
+      }, 1200);
+    });
+  </script>
+
+</body>
+</html>

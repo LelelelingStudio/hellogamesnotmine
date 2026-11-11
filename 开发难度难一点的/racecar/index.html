@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>霓虹漂移 · Neon Drift</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; background:#06070d; overflow:hidden;
+    font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  #wrap { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; }
+  #game { background:#06070d; image-rendering:auto; box-shadow:0 0 40px rgba(80,120,255,0.15);
+    max-width:100%; max-height:100%; touch-action:none; }
+  /* 返回主集合按钮（与集合其他游戏保持一致） */
+  .back-home { position:fixed; top:14px; left:14px; z-index:50;
+    display:inline-flex; align-items:center; gap:6px; text-decoration:none;
+    padding:8px 14px; border-radius:999px; color:#dfe6ff;
+    background:rgba(12,16,28,0.55); backdrop-filter:blur(6px);
+    border:1px solid rgba(120,150,255,0.35); font-size:13px; letter-spacing:.5px;
+    transition:.18s; }
+  .back-home:hover { background:rgba(60,90,200,0.55); border-color:rgba(150,180,255,0.7); }
+</style>
+<!-- LELELE-ATTRIBUTION-START -->
+  了了了游投稿精选 · 作者与版权信息（请勿删除）
+  作品：racecar
+  作者：highwindmx
+  许可：GNU GPL v3.0 · Copyright (C) 2026 highwindmx
+  来源：https://github.com/highwindmx/HTML-Games
+  适龄分级（建议，投稿前需人工复核）：全年龄
+  法律协议：用户协议 / 隐私政策 / 服务条款均使用平台通用万能协议（守则 4.6 默认②）
+  风险标注：无
+  说明：本文件为原作品的完整副本，未改动玩法、样式与交互；原许可与版权声明均保留。
+  ---- 随附许可全文开始 ----
+                      GNU GENERAL PUBLIC LICENSE
+                         Version 3, 29 June 2007
+  
+   Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+   Everyone is permitted to copy and distribute verbatim copies
+   of this license document, but changing it is not allowed.
+  
+                              Preamble
+  
+    The GNU General Public License is a free, copyleft license for
+  software and other kinds of works.
+  
+    The licenses for most software and other practical works are designed
+  to take away your freedom to share and change the works.  By contrast,
+  the GNU General Public License is intended to guarantee your freedom to
+  share and change all versions of a program--to make sure it remains free
+  software for all its users.  We, the Free Software Foundation, use the
+  GNU General Public License for most of our software; it applies also to
+  any other work released this way by its authors.  You can apply it to
+  your programs, too.
+  
+    When we speak of free software, we are referring to freedom, not
+  price.  Our General Public Licenses are designed to make sure that you
+  have the freedom to distribute copies of free software (and charge for
+  them if you wish), that you receive source code or can get it if you
+  want it, that you can change the software or use pieces of it in new
+  free programs, and that you know you can do these things.
+  
+    To protect your rights, we need to prevent others from denying you
+  these rights or asking you to surrender the rights.  Therefore, you have
+  certain responsibilities if you distribute copies of the software, or if
+  you modify it: responsibilities to respect the freedom of others.
+  
+    For example, if you distribute copies of such a program, whether
+  gratis or for a fee, you must pass on to the recipients the same
+  freedoms that you received.  You must make sure that they, too, receive
+  or can get the source code.  And you must show them these terms so they
+  know their rights.
+  
+    Developers that use the GNU GPL protect your rights with two steps:
+  (1) assert copyright on the software, and (2) offer you this License
+  giving you legal permission to copy, distribute and/or modify it.
+  
+    For the developers' and authors' protection, the GPL clearly explains
+  that there is no warranty for this free software.  For both users' and
+  authors' sake, the GPL requires that modified versions be marked as
+  changed, so that their problems will not be attributed erroneously to
+  authors of previous versions.
+  
+    Some devices are designed to deny users access to install or run
+  modified versions of the software inside them, although the manufacturer
+  can do so.  This is fundamentally incompatible with the aim of
+  protecting users' freedom to change the software.  The systematic
+  pattern of such abuse occurs in the area of products for individuals to
+  use, which is precisely where it is most unacceptable.  Therefore, we
+  have designed this version of the GPL to prohibit the practice for those
+  products.  If such problems arise substantially in other domains, we
+  stand ready to extend this provision to those domains in future versions
+  of the GPL, as needed to protect the freedom of users.
+  
+    Finally, every program is threatened constantly by software patents.
+  States should not allow patents to restrict development and use of
+  software on general-purpose computers, but in those that do, we wish to
+  avoid the special danger that patents applied to a free program could
+  make it effectively proprietary.  To prevent this, the GPL assures that
+  patents cannot be used to render the program non-free.
+  
+    The precise terms and conditions for copying, distribution and
+  modification follow.
+  
+                         TERMS AND CONDITIONS
+  
+    0. Definitions.
+  
+    "This License" refers to version 3 of the GNU General Public License.
+  
+    "Copyright" also means copyright-like laws that apply to other kinds of
+  works, such as semiconductor masks.
+  
+    "The Program" refers to any copyrightable work licensed under this
+  License.  Each licensee is addressed as "you".  "Licensees" and
+  "recipients" may be individuals or organizations.
+  
+    To "modify" a work means to copy from or adapt all or part of the work
+  in a fashion requiring copyright permission, other than the making of an
+  exact copy.  The resulting work is called a "modified version" of the
+  earlier work or a work "based on" the earlier work.
+  
+    A "covered work" means either the unmodified Program or a work based
+  on the Program.
+  
+    To "propagate" a work means to do anything with it that, without
+  permission, would make you directly or secondarily liable for
+  infringement under applicable copyright law, except executing it on a
+  computer or modifying a private copy.  Propagation includes copying,
+  distribution (with or without modification), making available to the
+  public, and in some countries other activities as well.
+  
+    To "convey" a work means any kind of propagation that enables other
+  parties to make or receive copies.  Mere interaction with a user through
+  a computer network, with no transfer of a copy, is not conveying.
+  
+    An interactive user interface displays "Appropriate Legal Notices"
+  to the extent that it includes a convenient and prominently visible
+  feature that (1) displays an appropriate copyright notice, and (2)
+  tells the user that there is no warranty for the work (except to the
+  extent that warranties are provided), that licensees may convey the
+  work under this License, and how to view a copy of this License.  If
+  the interface presents a list of user commands or options, such as a
+  menu, a prominent item in the list meets this criterion.
+  
+    1. Source Code.
+  
+    The "source code" for a work means the preferred form of the work
+  for making modifications to it.  "Object code" means any non-source
+  form of a work.
+  
+    A "Standard Interface" means an interface that either is an official
+  standard defined by a recognized standards body, or, in the case of
+  interfaces specified for a particular programming language, one that
+  is widely used among developers working in that language.
+  
+    The "System Libraries" of an executable work include anything, other
+  than the work as a whole, that (a) is included in the normal form of
+  packaging a Major Component, but which is not part of that Major
+  Component, and (b) serves only to enable use of the work with that
+  Major Component, or to implement a Standard Interface for which an
+  implementation is available to the public in source code form.  A
+  "Major Component", in this context, means a major essential component
+  (kernel, window system, and so on) of the specific operating system
+  (if any) on which the executable work runs, or a compiler used to
+  produce the work, or an object code interpreter used to run it.
+  
+    The "Corresponding Source" for a work in object code form means all
+  the source code needed to generate, install, and (for an executable
+  work) run the object code and to modify the work, including scripts to
+  control those activities.  However, it does not include the work's
+  System Libraries, or general-purpose tools or generally available free
+  programs which are used unmodified in performing those activities but
+  which are not part of the work.  For example, Corresponding Source
+  includes interface definition files associated with source files for
+  the work, and the source code for shared libraries and dynamically
+  linked subprograms that the work is specifically designed to require,
+  such as by intimate data communication or control flow between those
+  subprograms and other parts of the work.
+  
+    The Corresponding Source need not include anything that users
+  can regenerate automatically from other parts of the Corresponding
+  Source.
+  
+    The Corresponding Source for a work in source code form is that
+  same work.
+  
+    2. Basic Permissions.
+  
+    All rights granted under this License are granted for the term of
+  copyright on the Program, and are irrevocable provided the stated
+  conditions are met.  This License explicitly affirms your unlimited
+  permission to run the unmodified Program.  The output from running a
+  covered work is covered by this License only if the output, given its
+  content, constitutes a covered work.  This License acknowledges your
+  rights of fair use or other equivalent, as provided by copyright law.
+  
+    You may make, run and propagate covered works that you do not
+  convey, without conditions so long as your license otherwise remains
+  in force.  You may convey covered works to others for the sole purpose
+  of having them make modifications exclusively for you, or provide you
+  with facilities for running those works, provided that you comply with
+  the terms of this License in conveying all material for which you do
+  not control copyright.  Those thus making or running the covered works
+  for you must do so exclusively on your behalf, under your direction
+  and control, on terms that prohibit them from making any copies of
+  your copyrighted material outside their relationship with you.
+  
+    Conveying under any other circumstances is permitted solely under
+  the conditions stated below.  Sublicensing is not allowed; section 10
+  makes it unnecessary.
+  
+    3. Protecting Users' Legal Rights From Anti-Circumvention Law.
+  
+    No covered work shall be deemed part of an effective technological
+  measure under any applicable law fulfilling obligations under article
+  11 of the WIPO copyright treaty adopted on 20 December 1996, or
+  similar laws prohibiting or restricting circumvention of such
+  measures.
+  
+    When you convey a covered work, you waive any legal power to forbid
+  circumvention of technological measures to the extent such circumvention
+  is effected by exercising rights under this License with respect to
+  the covered work, and you disclaim any intention to limit operation or
+  modification of the work as a means of enforcing, against the work's
+  users, your or third parties' legal rights to forbid circumvention of
+  technological measures.
+  
+    4. Conveying Verbatim Copies.
+  
+    You may convey verbatim copies of the Program's source code as you
+  receive it, in any medium, provided that you conspicuously and
+  appropriately publish on each copy an appropriate copyright notice;
+  keep intact all notices stating that this License and any
+  non-permissive terms added in accord with section 7 apply to the code;
+  keep intact all notices of the absence of any warranty; and give all
+  recipients a copy of this License along with the Program.
+  
+    You may charge any price or no price for each copy that you convey,
+  and you may offer support or warranty protection for a fee.
+  
+    5. Conveying Modified Source Versions.
+  
+    You may convey a work based on the Program, or the modifications to
+  produce it from the Program, in the form of source code under the
+  terms of section 4, provided that you also meet all of these conditions:
+  
+      a) The work must carry prominent notices stating that you modified
+      it, and giving a relevant date.
+  
+      b) The work must carry prominent notices stating that it is
+      released under this License and any conditions added under section
+      7.  This requirement modifies the requirement in section 4 to
+      "keep intact all notices".
+  
+      c) You must license the entire work, as a whole, under this
+      License to anyone who comes into possession of a copy.  This
+      License will therefore apply, along with any applicable section 7
+      additional terms, to the whole of the work, and all its parts,
+      regardless of how they are packaged.  This License gives no
+      permission to license the work in any other way, but it does not
+      invalidate such permission if you have separately received it.
+  
+      d) If the work has interactive user interfaces, each must display
+      Appropriate Legal Notices; however, if the Program has interactive
+      interfaces that do not display Appropriate Legal Notices, your
+      work need not make them do so.
+  
+    A compilation of a covered work with other separate and independent
+  works, which are not by their nature extensions of the covered work,
+  and which are not combined with it such as to form a larger program,
+  in or on a volume of a storage or distribution medium, is called an
+  "aggregate" if the compilation and its resulting copyright are not
+  used to limit the access or legal rights of the compilation's users
+  beyond what the individual works permit.  Inclusion of a covered work
+  in an aggregate does not cause this License to apply to the other
+  parts of the aggregate.
+  
+    6. Conveying Non-Source Forms.
+  
+    You may convey a covered work in object code form under the terms
+  of sections 4 and 5, provided that you also convey the
+  machine-readable Corresponding Source under the terms of this License,
+  in one of these ways:
+  
+      a) Convey the object code in, or embodied in, a physical product
+      (including a physical distribution medium), accompanied by the
+      Corresponding Source fixed on a durable physical medium
+      customarily used for software interchange.
+  
+      b) Convey the object code in, or embodied in, a physical product
+      (including a physical distribution medium), accompanied by a
+      written offer, valid for at least three years and valid for as
+      long as you offer spare parts or customer support for that product
+      model, to give anyone who possesses the object code either (1) a
+      copy of the Corresponding Source for all the software in the
+      product that is covered by this License, on a durable physical
+      medium customarily used for software interchange, for a price no
+      more than your reasonable cost of physically performing this
+      conveying of source, or (2) access to copy the
+      Corresponding Source from a network server at no charge.
+  
+      c) Convey individual copies of the object code with a copy of the
+      written offer to provide the Corresponding Source.  This
+      alternative is allowed only occasionally and noncommercially, and
+      only if you received the object code with such an offer, in accord
+      with subsection 6b.
+  
+      d) Convey the object code by offering access from a designated
+      place (gratis or for a charge), and offer equivalent access to the
+      Corresponding Source in the same way through the same place at no
+      further charge.  You need not require recipients to copy the
+      Corresponding Source along with the object code.  If the place to
+      copy the object code is a network server, the Corresponding Source
+      may be on a different server (operated by you or a third party)
+      that supports equivalent copying facilities, provided you maintain
+      clear directions next to the object code saying where to find the
+      Corresponding Source.  Regardless of what server hosts the
+      Corresponding Source, you remain obligated to ensure that it is
+      available for as long as needed to satisfy these requirements.
+  
+      e) Convey the object code using peer-to-peer transmission, provided
+      you inform other peers where the object code and Corresponding
+      Source of the work are being offered to the general public at no
+      charge under subsection 6d.
+  
+    A separable portion of the object code, whose source code is excluded
+  from the Corresponding Source as a System Library, need not be
+  included in conveying the object code work.
+  
+    A "User Product" is either (1) a "consumer product", which means any
+  tangible personal property which is normally used for personal, family,
+  or household purposes, or (2) anything designed or sold for incorporation
+  into a dwelling.  In determining whether a product is a consumer product,
+  doubtful cases shall be resolved in favor of coverage.  For a particular
+  product received by a particular user, "normally used" refers to a
+  typical or common use of that class of product, regardless of the status
+  of the particular user or of the way in which the particular user
+  actually uses, or expects or is expected to use, the product.  A product
+  is a consumer product regardless of whether the product has substantial
+  commercial, industrial or non-consumer uses, unless such uses represent
+  the only significant mode of use of the product.
+  
+    "Installation Information" for a User Product means any methods,
+  procedures, authorization keys, or other information required to install
+  and execute modified versions of a covered work in that User Product from
+  a modified version of its Corresponding Source.  The information must
+  suffice to ensure that the continued functioning of the modified object
+  code is in no case prevented or interfered with solely because
+  modification has been made.
+  
+    If you convey an object code work under this section in, or with, or
+  specifically for use in, a User Product, and the conveying occurs as
+  part of a transaction in which the right of possession and use of the
+  User Product is transferred to the recipient in perpetuity or for a
+  fixed term (regardless of how the transaction is characterized), the
+  Corresponding Source conveyed under this section must be accompanied
+  by the Installation Information.  But this requirement does not apply
+  if neither you nor any third party retains the ability to install
+  modified object code on the User Product (for example, the work has
+  been installed in ROM).
+  
+    The requirement to provide Installation Information does not include a
+  requirement to continue to provide support service, warranty, or updates
+  for a work that has been modified or installed by the recipient, or for
+  the User Product in which it has been modified or installed.  Access to a
+  network may be denied when the modification itself materially and
+  adversely affects the operation of the network or violates the rules and
+  protocols for communication across the network.
+  
+    Corresponding Source conveyed, and Installation Information provided,
+  in accord with this section must be in a format that is publicly
+  documented (and with an implementation available to the public in
+  source code form), and must require no special password or key for
+  unpacking, reading or copying.
+  
+    7. Additional Terms.
+  
+    "Additional permissions" are terms that supplement the terms of this
+  License by making exceptions from one or more of its conditions.
+  Additional permissions that are applicable to the entire Program shall
+  be treated as though they were included in this License, to the extent
+  that they are valid under applicable law.  If additional permissions
+  apply only to part of the Program, that part may be used separately
+  under those permissions, but the entire Program remains governed by
+  this License without regard to the additional permissions.
+  
+    When you convey a copy of a covered work, you may at your option
+  remove any additional permissions from that copy, or from any part of
+  it.  (Additional permissions may be written to require their own
+  removal in certain cases when you modify the work.)  You may place
+  additional permissions on material, added by you to a covered work,
+  for which you have or can give appropriate copyright permission.
+  
+    Notwithstanding any other provision of this License, for material you
+  add to a covered work, you may (if authorized by the copyright holders of
+  that material) supplement the terms of this License with terms:
+  
+      a) Disclaiming warranty or limiting liability differently from the
+      terms of sections 15 and 16 of this License; or
+  
+      b) Requiring preservation of specified reasonable legal notices or
+      author attributions in that material or in the Appropriate Legal
+      Notices displayed by works containing it; or
+  
+      c) Prohibiting misrepresentation of the origin of that material, or
+      requiring that modified versions of such material be marked in
+      reasonable ways as different from the original version; or
+  
+      d) Limiting the use for publicity purposes of names of licensors or
+      authors of the material; or
+  
+      e) Declining to grant rights under trademark law for use of some
+      trade names, trademarks, or service marks; or
+  
+      f) Requiring indemnification of licensors and authors of that
+      material by anyone who conveys the material (or modified versions of
+      it) with contractual assumptions of liability to the recipient, for
+      any liability that these contractual assumptions directly impose on
+      those licensors and authors.
+  
+    All other non-permissive additional terms are considered "further
+  restrictions" within the meaning of section 10.  If the Program as you
+  received it, or any part of it, contains a notice stating that it is
+  governed by this License along with a term that is a further
+  restriction, you may remove that term.  If a license document contains
+  a further restriction but permits relicensing or conveying under this
+  License, you may add to a covered work material governed by the terms
+  of that license document, provided that the further restriction does
+  not survive such relicensing or conveying.
+  
+    If you add terms to a covered work in accord with this section, you
+  must place, in the relevant source files, a statement of the
+  additional terms that apply to those files, or a notice indicating
+  where to find the applicable terms.
+  
+    Additional terms, permissive or non-permissive, may be stated in the
+  form of a separately written license, or stated as exceptions;
+  the above requirements apply either way.
+  
+    8. Termination.
+  
+    You may not propagate or modify a covered work except as expressly
+  provided under this License.  Any attempt otherwise to propagate or
+  modify it is void, and will automatically terminate your rights under
+  this License (including any patent licenses granted under the third
+  paragraph of section 11).
+  
+    However, if you cease all violation of this License, then your
+  license from a particular copyright holder is reinstated (a)
+  provisionally, unless and until the copyright holder explicitly and
+  finally terminates your license, and (b) permanently, if the copyright
+  holder fails to notify you of the violation by some reasonable means
+  prior to 60 days after the cessation.
+  
+    Moreover, your license from a particular copyright holder is
+  reinstated permanently if the copyright holder notifies you of the
+  violation by some reasonable means, this is the first time you have
+  received notice of violation of this License (for any work) from that
+  copyright holder, and you cure the violation prior to 30 days after
+  your receipt of the notice.
+  
+    Termination of your rights under this section does not terminate the
+  licenses of parties who have received copies or rights from you under
+  this License.  If your rights have been terminated and not permanently
+  reinstated, you do not qualify to receive new licenses for the same
+  material under section 10.
+  
+    9. Acceptance Not Required for Having Copies.
+  
+    You are not required to accept this License in order to receive or
+  run a copy of the Program.  Ancillary propagation of a covered work
+  occurring solely as a consequence of using peer-to-peer transmission
+  to receive a copy likewise does not require acceptance.  However,
+  nothing other than this License grants you permission to propagate or
+  modify any covered work.  These actions infringe copyright if you do
+  not accept this License.  Therefore, by modifying or propagating a
+  covered work, you indicate your acceptance of this License to do so.
+  
+    10. Automatic Licensing of Downstream Recipients.
+  
+    Each time you convey a covered work, the recipient automatically
+  receives a license from the original licensors, to run, modify and
+  propagate that work, subject to this License.  You are not responsible
+  for enforcing compliance by third parties with this License.
+  
+    An "entity transaction" is a transaction transferring control of an
+  organization, or substantially all assets of one, or subdividing an
+  organization, or merging organizations.  If propagation of a covered
+  work results from an entity transaction, each party to that
+  transaction who receives a copy of the work also receives whatever
+  licenses to the work the party's predecessor in interest had or could
+  give under the previous paragraph, plus a right to possession of the
+  Corresponding Source of the work from the predecessor in interest, if
+  the predecessor has it or can get it with reasonable efforts.
+  
+    You may not impose any further restrictions on the exercise of the
+  rights granted or affirmed under this License.  For example, you may
+  not impose a license fee, royalty, or other charge for exercise of
+  rights granted under this License, and you may not initiate litigation
+  (including a cross-claim or counterclaim in a lawsuit) alleging that
+  any patent claim is infringed by making, using, selling, offering for
+  sale, or importing the Program or any portion of it.
+  
+    11. Patents.
+  
+    A "contributor" is a copyright holder who authorizes use under this
+  License of the Program or a work on which the Program is based.  The
+  work thus licensed is called the contributor's "contributor version".
+  
+    A contributor's "essential patent claims" are all patent claims
+  owned or controlled by the contributor, whether already acquired or
+  hereafter acquired, that would be infringed by some manner, permitted
+  by this License, of making, using, or selling its contributor version,
+  but do not include claims that would be infringed only as a
+  consequence of further modification of the contributor version.  For
+  purposes of this definition, "control" includes the right to grant
+  patent sublicenses in a manner consistent with the requirements of
+  this License.
+  
+    Each contributor grants you a non-exclusive, worldwide, royalty-free
+  patent license under the contributor's essential patent claims, to
+  make, use, sell, offer for sale, import and otherwise run, modify and
+  propagate the contents of its contributor version.
+  
+    In the following three paragraphs, a "patent license" is any express
+  agreement or commitment, however denominated, not to enforce a patent
+  (such as an express permission to practice a patent or covenant not to
+  sue for patent infringement).  To "grant" such a patent license to a
+  party means to make such an agreement or commitment not to enforce a
+  patent against the party.
+  
+    If you convey a covered work, knowingly relying on a patent license,
+  and the Corresponding Source of the work is not available for anyone
+  to copy, free of charge and under the terms of this License, through a
+  publicly available network server or other readily accessible means,
+  then you must either (1) cause the Corresponding Source to be so
+  available, or (2) arrange to deprive yourself of the benefit of the
+  patent license for this particular work, or (3) arrange, in a manner
+  consistent with the requirements of this License, to extend the patent
+  license to downstream recipients.  "Knowingly relying" means you have
+  actual knowledge that, but for the patent license, your conveying the
+  covered work in a country, or your recipient's use of the covered work
+  in a country, would infringe one or more identifiable patents in that
+  country that you have reason to believe are valid.
+  
+    If, pursuant to or in connection with a single transaction or
+  arrangement, you convey, or propagate by procuring conveyance of, a
+  covered work, and grant a patent license to some of the parties
+  receiving the covered work authorizing them to use, propagate, modify
+  or convey a specific copy of the covered work, then the patent license
+  you grant is automatically extended to all recipients of the covered
+  work and works based on it.
+  
+    A patent license is "discriminatory" if it does not include within
+  the scope of its coverage, prohibits the exercise of, or is
+  conditioned on the non-exercise of one or more of the rights that are
+  specifically granted under this License.  You may not convey a covered
+  work if you are a party to an arrangement with a third party that is
+  in the business of distributing software, under which you make payment
+  to the third party based on the extent of your activity of conveying
+  the work, and under which the third party grants, to any of the
+  parties who would receive the covered work from you, a discriminatory
+  patent license (a) in connection with copies of the covered work
+  conveyed by you (or copies made from those copies), or (b) primarily
+  for and in connection with specific products or compilations that
+  contain the covered work, unless you entered into that arrangement,
+  or that patent license was granted, prior to 28 March 2007.
+  
+    Nothing in this License shall be construed as excluding or limiting
+  any implied license or other defenses to infringement that may
+  otherwise be available to you under applicable patent law.
+  
+    12. No Surrender of Others' Freedom.
+  
+    If conditions are imposed on you (whether by court order, agreement or
+  otherwise) that contradict the conditions of this License, they do not
+  excuse you from the conditions of this License.  If you cannot convey a
+  covered work so as to satisfy simultaneously your obligations under this
+  License and any other pertinent obligations, then as a consequence you may
+  not convey it at all.  For example, if you agree to terms that obligate you
+  to collect a royalty for further conveying from those to whom you convey
+  the Program, the only way you could satisfy both those terms and this
+  License would be to refrain entirely from conveying the Program.
+  
+    13. Use with the GNU Affero General Public License.
+  
+    Notwithstanding any other provision of this License, you have
+  permission to link or combine any covered work with a work licensed
+  under version 3 of the GNU Affero General Public License into a single
+  combined work, and to convey the resulting work.  The terms of this
+  License will continue to apply to the part which is the covered work,
+  but the special requirements of the GNU Affero General Public License,
+  section 13, concerning interaction through a network will apply to the
+  combination as such.
+  
+    14. Revised Versions of this License.
+  
+    The Free Software Foundation may publish revised and/or new versions of
+  the GNU General Public License from time to time.  Such new versions will
+  be similar in spirit to the present version, but may differ in detail to
+  address new problems or concerns.
+  
+    Each version is given a distinguishing version number.  If the
+  Program specifies that a certain numbered version of the GNU General
+  Public License "or any later version" applies to it, you have the
+  option of following the terms and conditions either of that numbered
+  version or of any later version published by the Free Software
+  Foundation.  If the Program does not specify a version number of the
+  GNU General Public License, you may choose any version ever published
+  by the Free Software Foundation.
+  
+    If the Program specifies that a proxy can decide which future
+  versions of the GNU General Public License can be used, that proxy's
+  public statement of acceptance of a version permanently authorizes you
+  to choose that version for the Program.
+  
+    Later license versions may give you additional or different
+  permissions.  However, no additional obligations are imposed on any
+  author or copyright holder as a result of your choosing to follow a
+  later version.
+  
+    15. Disclaimer of Warranty.
+  
+    THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY
+  APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT
+  HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY
+  OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,
+  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+  PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM
+  IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
+  ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+  
+    16. Limitation of Liability.
+  
+    IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+  WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS
+  THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY
+  GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE
+  USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF
+  DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD
+  PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
+  EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+  SUCH DAMAGES.
+  
+    17. Interpretation of Sections 15 and 16.
+  
+    If the disclaimer of warranty and limitation of liability provided
+  above cannot be given local legal effect according to their terms,
+  reviewing courts shall apply local law that most closely approximates
+  an absolute waiver of all civil liability in connection with the
+  Program, unless a warranty or assumption of liability accompanies a
+  copy of the Program in return for a fee.
+  
+                       END OF TERMS AND CONDITIONS
+  
+              How to Apply These Terms to Your New Programs
+  
+    If you develop a new program, and you want it to be of the greatest
+  possible use to the public, the best way to achieve this is to make it
+  free software which everyone can redistribute and change under these terms.
+  
+    To do so, attach the following notices to the program.  It is safest
+  to attach them to the start of each source file to most effectively
+  state the exclusion of warranty; and each file should have at least
+  the "copyright" line and a pointer to where the full notice is found.
+  
+      <one line to give the program's name and a brief idea of what it does.>
+      Copyright (C) <year>  <name of author>
+  
+      This program is free software: you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+  
+      This program is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+  
+      You should have received a copy of the GNU General Public License
+      along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  
+  Also add information on how to contact you by electronic and paper mail.
+  
+    If the program does terminal interaction, make it output a short
+  notice like this when it starts in an interactive mode:
+  
+      <program>  Copyright (C) <year>  <name of author>
+      This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
+      This is free software, and you are welcome to redistribute it
+      under certain conditions; type `show c' for details.
+  
+  The hypothetical commands `show w' and `show c' should show the appropriate
+  parts of the General Public License.  Of course, your program's commands
+  might be different; for a GUI interface, you would use an "about box".
+  
+    You should also get your employer (if you work as a programmer) or school,
+  if any, to sign a "copyright disclaimer" for the program, if necessary.
+  For more information on this, and how to apply and follow the GNU GPL, see
+  <https://www.gnu.org/licenses/>.
+  
+    The GNU General Public License does not permit incorporating your program
+  into proprietary programs.  If your program is a subroutine library, you
+  may consider it more useful to permit linking proprietary applications with
+  the library.  If this is what you want to do, use the GNU Lesser General
+  Public License instead of this License.  But first, please read
+  <https://www.gnu.org/licenses/why-not-lgpl.html>.
+  ---- 随附许可全文结束 ----
+<!-- LELELE-ATTRIBUTION-END -->
+</head>
+<body>
+  <a class="back-home" href="../index.html">← 游戏集合</a>
+  <div id="wrap"><canvas id="game" width="1280" height="720"></canvas></div>
+
+<script>
+"use strict";
+/* =========================================================================
+   霓虹漂移 Neon Drift —— 2D 俯视漂移赛车（单文件 / Canvas2D / 零依赖）
+   核心快感：高速入弯 → 松油/刹车 → 侧滑 → 反打方向控角 → 给油出弯
+   漂移模型：速度矢量分解为 前向 / 横向，横向抓地系数控制滑移量
+   ========================================================================= */
+
+// ---------- 常量 ----------
+const CW = 1280, CH = 720;          // 画布逻辑分辨率（16:9）
+const TS = 32;                       // 瓦片尺寸
+const COLS = Math.ceil(CW / TS), ROWS = Math.ceil(CH / TS);
+const T_GRASS = 0, T_ROAD = 1;
+const LAPS = 3;
+const DRIFT_MIN_SPEED = 3.2;         // 低于此速度不判定漂移
+const DRIFT_HANGOVER = 22;           // 松开转向后，漂移态仍保留的帧数（延长滑行）
+const CAM_ZOOM = 1.35;               // 比赛中相机缩放：视野更宽、前路预判更及时（相对 1.8 收缩约 1/4）
+
+// ---------- 车辆属性（均可调）----------
+// 极速整体下调约 22%，更可控、不易冲出
+const CAR_TYPES = [
+  { name:"均衡型", color:"#4ea1ff", maxSpeed:8.8, accel:0.14, brake:0.20,
+    turn:0.055, normalLat: 0.84, driftLat:0.965, driftTh:1.5, desc:"速度中·抓地中·易上手" },
+  { name:"速度型", color:"#ff5d8f", maxSpeed:10.2, accel:0.17, brake:0.18,
+    turn:0.050, normalLat:0.80, driftLat:0.975, driftTh:1.1, desc:"速度快·易漂移·难控" },
+  { name:"抓地型", color:"#54d6a0", maxSpeed:7.6,  accel:0.125, brake:0.22,
+    turn:0.060, normalLat:0.90, driftLat:0.93, driftTh: 2.3, desc:"慢但稳·漂移难" },
+];
+
+// ---------- 对手赛车（4 辆，性能各异）----------
+// maxSpeed/accel/grip 各不相同，配合 AI 难度系数 skill 形成明显快慢差异
+const OPPONENTS = [
+  { name:"赤焰", color:"#ff4d4d", maxSpeed:10.0, accel:0.16, brake:0.18,
+    turn:0.054, normalLat:0.86, driftLat:0.965, driftTh:1.3, skill:1.00 },
+  { name:"金隼", color:"#ffd24d", maxSpeed: 10.8, accel:0.175, brake:0.16,
+    turn:0.046, normalLat:0.80, driftLat:0.978, driftTh:1.0, skill:1.05 },
+  { name:"碧波", color:"#3fd0ff", maxSpeed:9.0, accel:0.135, brake:0.20,
+    turn:0.058, normalLat:0.88, driftLat:0.945, driftTh:1.8, skill:0.92 },
+  { name:"墨影", color:"#b07cff", maxSpeed:8.2,accel:0.115, brake:0.22,
+    turn:0.062, normalLat:0.92, driftLat:0.93, driftTh:2.5, skill:0.86 },
+];
+
+// 程序化生成闭合中心线控制点：大椭圆骨架 + 低频长S起伏（杜绝 W 型高频反转）
+// 可选 hairpin（高斯内凹）形成偶尔发卡弯；骨架为平滑环、无自交
+function genTrack({Rx,Ry,sAmp=0.16,sFreq=1,sPh=0,hairpin=null,N=14}){
+  const CX=640,CY=360, pts=[];
+  for(let i=0;i<N;i++){
+    const th=i/N*Math.PI*2;
+    const r=1 + sAmp*Math.sin(sFreq*th + sPh);          // 半径调制（长S起伏，低频=长波长）
+    let x=CX+Rx*Math.cos(th)*r, y=CY+Ry*Math.sin(th)*r;
+    if(hairpin){                                         // 局部内凹收紧，形成发卡弯
+      let d=Math.abs(((th-hairpin.ang+Math.PI)%(Math.PI*2))-Math.PI);
+      const w=Math.exp(-(d*d)/(2*hairpin.w*hairpin.w));
+      x=CX+(x-CX)*(1-hairpin.depth*w);
+      y=CY+(y-CY)*(1-hairpin.depth*w);
+    }
+    pts.push([x,y]);
+  }
+  return pts;
+}
+// 三关控制点（顺时针），Catmull-Rom 闭合样条生成中心线
+// 长S型为主、无W型高频反转、偶尔发卡弯；lenScale 统一放大整体长度（再加一倍）
+const TRACK_DEFS = [
+  { name:"极光环道", width:150, color:"#48e0c0", lenScale:10.4, diff:1,
+    ctrl: genTrack({Rx:520,Ry:360,sAmp:0.14,sFreq:1,sPh:0}) },
+  { name:"涌浪海岸", width:130, color:"#ffb347", lenScale:10.4, diff:2,
+    ctrl: genTrack({Rx:540,Ry:330,sAmp:0.20,sFreq:1,sPh:0.6}) },
+  { name:"流光回旋", width:112, color:"#ff5d5d", lenScale:10.4, diff:3,
+    ctrl: genTrack({Rx:510,Ry:350,sAmp:0.18,sFreq:1,sPh:0.5,hairpin:{ang:-Math.PI*0.5,w:0.40,depth:0.40}}) },
+  // 新增 F1 风格赛道（抽象致敬，非精确复刻）
+  { name:"蒙扎高速", width:170, color:"#7cffb2", lenScale:10.4, diff:2,
+    ctrl: genTrack({Rx:560,Ry:320,sAmp:0.10,sFreq:1}) },
+  { name:"斯帕之刃", width:160, color:"#ff8c42", lenScale:10.4, diff:3,
+    ctrl: genTrack({Rx:540,Ry:370,sAmp:0.16,sFreq:1,sPh:1.0,hairpin:{ang:Math.PI*0.5,w:0.42,depth:0.40}}) },
+  { name:"铃鹿回环", width:150, color:"#c08cff", lenScale:10.4, diff:4,
+    ctrl: genTrack({Rx:530,Ry:350,sAmp:0.15,sFreq:1,sPh:0.3,hairpin:{ang:-Math.PI*0.25,w:0.40,depth:0.42}}) },
+  { name:"银石流风", width:165, color:"#5db4ff", lenScale:10.4, diff:3,
+    ctrl: genTrack({Rx:550,Ry:335,sAmp:0.18,sFreq:1,sPh:0.4,hairpin:{ang:Math.PI*0.75,w:0.44,depth:0.38}}) },
+];
+
+// ---------- 工具 ----------
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const dist2=(ax,ay,bx,by)=>{const dx=ax-bx,dy=ay-by;return dx*dx+dy*dy;};
+function distToSeg(px,py,ax,ay,bx,by){
+  const dx=bx-ax, dy=by-ay; const l2=dx*dx+dy*dy;
+  if(l2===0) return Math.hypot(px-ax,py-ay);
+  let t=((px-ax)*dx+(py-ay)*dy)/l2; t=clamp(t,0,1);
+  return Math.hypot(px-(ax+t*dx), py-(ay+t*dy));
+}
+function catmullClosed(pts,seg){
+  const out=[]; const n=pts.length;
+  for(let i=0;i<n;i++){
+    const p0=pts[(i-1+n)%n],p1=pts[i],p2=pts[(i+1)%n],p3=pts[(i+2)%n];
+    for(let t=0;t<seg;t++){
+      const s=t/seg,s2=s*s,s3=s2*s;
+      const x=0.5*((2*p1[0])+(-p0[0]+p2[0])*s+(2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*s2+(-p0[0]+3*p1[0]-3*p2[0]+p3[0])*s3);
+      const y=0.5*((2*p1[1])+(-p0[1]+p2[1])*s+(2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*s2+(-p0[1]+3*p1[1]-3*p2[1]+p3[1])*s3);
+      out.push([x,y]);
+    }
+  }
+  return out;
+}
+
+// =========================================================================
+//  Track：解析赛道、碰撞、渲染
+// =========================================================================
+class Track {
+  constructor(def){
+    this.def=def; this.name=def.name; this.color=def.color;
+    const CX=640, CY=360, LS=def.lenScale||1;          // 长度缩放（围绕画布中心放大）
+    this.width=def.width*1.333; this.halfW=this.width/2;   // 路宽 +1/3
+    this.center = catmullClosed(def.ctrl.map(p=>[CX+(p[0]-CX)*LS, CY+(p[1]-CY)*LS]), 14);  // 长度约 ×LS
+    this.n=this.center.length;
+    // 中心线周长（世界单位），供 AI 估算完赛时间
+    let per=0; for(let i=0;i<this.n;i++){ const a=this.center[i], b=this.center[(i+1)%this.n]; per+=Math.hypot(b[0]-a[0],b[1]-a[1]); }
+    this.perimeter=per;
+    // 基准目标时间：随赛道周长与圈数同比缩放（毫秒），难度越高阈值略紧
+    const refS=9.0, parK=1+(3-(def.diff||3))*0.05;
+    this.par = (per/(refS*60))*LAPS*1000*parK;
+    this.start=this.center[0];
+    // 检查点：取中心线上 4 等分点，并记录该处切线方向（用于画发光门）
+    this.checkpoints=[]; this.cpAngle=[];
+    for(let k=0;k<4;k++){ const i=Math.floor(k*this.n/4); const p=this.center[i];
+      this.checkpoints.push(p);
+      const q=this.center[(i+1)%this.n];
+      this.cpAngle.push(Math.atan2(q[1]-p[1], q[0]-p[0]));
+    }
+    // 朝向：指向中心线第 1 个采样点
+    const a=Math.atan2(this.center[1][1]-this.start[1], this.center[1][0]-this.start[0]);
+    this.startAngle=a;
+  }
+  // 点到中心线的最近距离（平滑判定路面/草地，无锯齿、无硬墙）
+  distToCenter(x,y){
+    let best=1e18;
+    for(let i=0;i<this.n;i++){
+      const a=this.center[i], b=this.center[(i+1)%this.n];
+      const d=distToSeg(x,y,a[0],a[1],b[0],b[1]);
+      if(d<best) best=d;
+    }
+    return best;
+  }
+  // 表面：路面内为 ROAD；之外为 GRASS（场地赛可冲出，仅减速、不碰撞）
+  surfaceAt(x,y){ return this.distToCenter(x,y) <= this.halfW ? T_ROAD : T_GRASS; }
+  // 到最近中心线的单位法线（指向车辆一侧）
+  normalAt(x,y){
+    let best=1e18, bx=this.center[0][0], by=this.center[0][1];
+    for(const p of this.center){ const dx=p[0]-x, dy=p[1]-y, d=dx*dx+dy*dy; if(d<best){best=d;bx=p[0];by=p[1];} }
+    let nx=x-bx, ny=y-by; const L=Math.hypot(nx,ny)||1;
+    return {x:nx/L, y:ny/L};
+  }
+  render(ctx, nextCpIdx){
+    // 草地底（世界大范围，确保相机任意位置都覆盖）
+    ctx.fillStyle="#0b0f17"; ctx.fillRect(-3000,-3000,6000,6000);
+    ctx.lineCap="round"; ctx.lineJoin="round";
+    const path=()=>{ ctx.beginPath(); ctx.moveTo(this.center[0][0],this.center[0][1]);
+      for(let i=1;i<this.n;i++) ctx.lineTo(this.center[i][0],this.center[i][1]); ctx.closePath(); };
+    // 霓虹外发光边
+    ctx.save();
+    ctx.strokeStyle=this.color; ctx.shadowColor=this.color; ctx.shadowBlur=22; ctx.lineWidth=this.width+12;
+    path(); ctx.stroke();
+    // 路面
+    ctx.shadowBlur=0; ctx.strokeStyle="#161d2c"; ctx.lineWidth=this.width;
+    path(); ctx.stroke();
+    // 中线虚线（装饰）
+    ctx.strokeStyle="rgba(255,255,255,0.10)"; ctx.lineWidth=2; ctx.setLineDash([14,18]);
+    path(); ctx.stroke(); ctx.setLineDash([]);
+    ctx.restore();
+    // 起点/终点线（棋盘格，沿切线方向）
+    const s=this.start, a=this.startAngle;
+    ctx.save(); ctx.translate(s[0],s[1]); ctx.rotate(a+Math.PI/2);
+    const w=this.halfW;
+    for(let i=0;i<8;i++){ ctx.fillStyle=(i%2===0)?"#ffffff":"#111"; ctx.fillRect(-w+i*(2*w/8),-5,2*w/8,10); }
+    ctx.restore();
+    // 检查点提示：下一个高亮脉冲 + 发光门；已过变绿；其余微亮
+    const t=performance.now()/1000;
+    const nextCp=(typeof nextCpIdx==="number")?nextCpIdx:0;
+    for(let k=0;k<this.checkpoints.length;k++){
+      const cp=this.checkpoints[k];
+      const isNext=(k===nextCp), passed=(k<nextCp);
+      const pulse=0.5+0.5*Math.sin(t*6);
+      ctx.save(); ctx.translate(cp[0],cp[1]);
+      if(isNext){
+        ctx.save(); ctx.rotate(this.cpAngle[k]);
+        ctx.strokeStyle="#ffd166"; ctx.shadowColor="#ffd166"; ctx.shadowBlur=14+pulse*12;
+        ctx.lineWidth=4; ctx.globalAlpha=0.85;
+        ctx.beginPath(); ctx.moveTo(-this.halfW,0); ctx.lineTo(this.halfW,0); ctx.stroke();
+        ctx.restore();
+        ctx.strokeStyle="rgba(255,209,102,"+(0.35+pulse*0.4)+")"; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(0,0,10+pulse*5,0,Math.PI*2); ctx.stroke();
+        ctx.fillStyle="rgba(255,224,150,0.95)"; ctx.font="bold 12px sans-serif"; ctx.textAlign="center";
+        ctx.fillText(String(k+1), 0, -22);
+      } else if(passed){
+        ctx.fillStyle="rgba(84,214,160,0.75)";
+        ctx.beginPath(); ctx.arc(0,0,5,0,Math.PI*2); ctx.fill();
+      } else {
+        ctx.strokeStyle="rgba(255,255,255,0.22)"; ctx.lineWidth=2; ctx.setLineDash([4,6]);
+        ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+      }
+      ctx.restore();
+    }
+  }
+}
+
+// =========================================================================
+//  Car：车辆物理与渲染
+// =========================================================================
+class Car {
+  constructor(track, type, typeIdx){
+    this.track=track; this.type=type; this.typeIdx=typeIdx;
+    this.x=track.start[0]; this.y=track.start[1];
+    this.angle=track.startAngle;
+    this.vx=0; this.vy=0;
+    this.drifting=false; this.driftTimer=0; this.lap=0; this.nextCp=0; this.finished=false;
+    this.driftCombo=0; this.driftScore=0;
+    this.w=26; this.h=14;
+  }
+  get speed(){ return Math.hypot(this.vx,this.vy); }
+  update(input, f){
+    const T=this.type;
+    const fx=Math.cos(this.angle), fy=Math.sin(this.angle);   // 前向
+    const rx=-Math.sin(this.angle), ry=Math.cos(this.angle);  // 右向（横向）
+    let vF=this.vx*fx+this.vy*fy;
+    let vL=this.vx*rx+this.vy*ry;
+
+    // 转向（低速减权，避免原地打转）
+    const speedFactor=clamp(this.speed/3,0,1);
+    let steer=0; if(input.left) steer-=1; if(input.right) steer+=1;
+    this.angle += steer * T.turn * (0.45+0.55*speedFactor) * f;
+
+    // 用新朝向重新分解世界速度 → 产生横向滑移
+    const fx2=Math.cos(this.angle), fy2=Math.sin(this.angle);
+    const rx2=-Math.sin(this.angle), ry2=Math.cos(this.angle);
+    vF=this.vx*fx2+this.vy*fy2;
+    vL=this.vx*rx2+this.vy*ry2;
+
+    // 油门 / 刹车 / 滚阻（必须在按新朝向重新分解之后施加，否则会被覆盖，导致油门/刹车无效）
+    if(input.up)   vF += T.accel*f;
+    else if(input.down) vF -= T.brake*f;
+    else vF *= Math.pow(0.992, f);                 // 自然滚阻
+    if(input.boostActive) vF += T.accel*0.6*f;     // 氮气（可选，暂未绑键，保留）
+
+    // 表面：冲出赛道进入草地 → 大幅减速 + 降抓地（场地赛可冲出，不碰撞）
+    const surf=this.track.surfaceAt(this.x,this.y);
+    let latFric=T.normalLat, maxV=T.maxSpeed;
+    if(surf!==T_ROAD){ maxV*=0.5; latFric=Math.min(0.97,T.normalLat+0.12); vF*=Math.pow(0.92,f); this.offTrack=true; }
+    else this.offTrack=false;
+
+    // 漂移判定：高速转角时进入漂移；松开转向后保留一段「滑行余韵」，避免一松手就被抓地吃掉
+    const slip=Math.abs(vL);
+    const wasDrift=this.drifting;
+    const driftActive = this.speed>DRIFT_MIN_SPEED && slip>T.driftTh && steer!==0;
+    if(driftActive) this.driftTimer = DRIFT_HANGOVER;     // 持续按住转向 → 保持漂移态
+    else if(this.driftTimer>0) this.driftTimer -= f;
+    this.drifting = this.driftTimer>0;
+    // 退出漂移时结算连击
+    if(wasDrift && !this.drifting){
+      this.driftScore += Math.round(this.driftCombo);
+      this.driftCombo=0;
+    }
+    // 横向抓地：漂移时 retaining 更多（更滑），否则迅速吃掉横向速度
+    const grip = this.drifting ? T.driftLat : latFric;
+    vL *= Math.pow(grip, f);
+
+    // 漂移中累计积分（与滑移角、速度成正比）
+    if(this.drifting){
+      this.driftCombo += slip*this.speed*0.04*f;
+    }
+
+    // 重新合成世界速度
+    this.vx = fx2*vF + rx2*vL;
+    this.vy = fy2*vF + ry2*vL;
+
+    // 限速
+    const sp=this.speed;
+    if(sp>maxV){ const k=maxV/sp; this.vx*=k; this.vy*=k; }
+
+    // 位移
+    this.x += this.vx*f; this.y += this.vy*f;
+
+    // 无碰撞：场地赛可冲出赛道，仅草地减速（见上方 surface 处理），永不卡墙
+  }
+  render(ctx){
+    ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this.angle);
+    // 阴影
+    ctx.fillStyle="rgba(0,0,0,0.35)"; ctx.fillRect(-this.w/2+2,-this.h/2+3,this.w,this.h);
+    // 车身
+    ctx.fillStyle=this.type.color;
+    ctx.shadowColor=this.type.color; ctx.shadowBlur=this.drifting?14:6;
+    ctx.fillRect(-this.w/2,-this.h/2,this.w,this.h);
+    ctx.shadowBlur=0;
+    // 风挡
+    ctx.fillStyle="rgba(10,14,24,0.85)"; ctx.fillRect(this.w*0.05,-this.h/2+2,this.w*0.3,this.h-4);
+    // 轮胎
+    ctx.fillStyle="#0a0a0f";
+    ctx.fillRect(-this.w/2,-this.h/2-2,5,4);
+    ctx.fillRect(this.w/2-5,-this.h/2-2,5,4);
+    ctx.fillRect(-this.w/2,this.h/2-2,5,4);
+    ctx.fillRect(this.w/2-5,this.h/2-2,5,4);
+    ctx.restore();
+  }
+}
+
+// =========================================================================
+//  ParticleSystem（对象池）：烟雾 / 火花
+// =========================================================================
+class ParticleSystem {
+  constructor(){ this.pool=[]; this.active=[]; }
+  _get(){ return this.pool.pop() || {}; }
+  emit(type,x,y,vx,vy,life,size,color){
+    const p=this._get();
+    p.type=type; p.x=x; p.y=y; p.vx=vx; p.vy=vy; p.life=life; p.max=life; p.size=size; p.color=color;
+    this.active.push(p);
+  }
+  smoke(x,y){ // 漂移白灰烟
+    for(let i=0;i<2;i++)
+      this.emit("smoke",x+(Math.random()*8-4),y+(Math.random()*8-4),
+        (Math.random()*0.6-0.3),(Math.random()*0.6-0.3)-0.2,
+        1.0+Math.random()*0.8, 5+Math.random()*5, "200,205,215");
+  }
+  spark(x,y){ // 撞墙火花
+    for(let i=0;i<6;i++){
+      const a=Math.random()*Math.PI*2, s=2+Math.random()*4;
+      this.emit("spark",x,y,Math.cos(a)*s,Math.sin(a)*s,0.3+Math.random()*0.3,2+Math.random()*2,"255,190,90");
+    }
+  }
+  update(f){
+    for(let i=this.active.length-1;i>=0;i--){
+      const p=this.active[i];
+      p.x+=p.vx*f; p.y+=p.vy*f; p.life-=0.016*f;
+      if(p.type==="smoke"){ p.vy-=0.02*f; p.size+=0.3*f; }
+      if(p.life<=0){ this.active.splice(i,1); this.pool.push(p); }
+    }
+  }
+  render(ctx){
+    for(const p of this.active){
+      const a=clamp(p.life/p.max,0,1);
+      if(p.type==="smoke"){
+        ctx.fillStyle="rgba("+p.color+","+(a*0.5).toFixed(3)+")";
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill();
+      } else {
+        ctx.fillStyle="rgba("+p.color+","+a.toFixed(3)+")";
+        ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size);
+      }
+    }
+  }
+}
+
+// =========================================================================
+//  SkidMarks（胎痕，淡出）
+// =========================================================================
+class SkidMarks {
+  constructor(){ this.segs=[]; }
+  add(x,y){ this.segs.push({x,y,a:1.0}); if(this.segs.length>900) this.segs.shift(); }
+  update(f){ for(let i=this.segs.length-1;i>=0;i--){ this.segs[i].a-=0.0016*f; if(this.segs[i].a<=0) this.segs.splice(i,1); } }
+  render(ctx){
+    ctx.lineWidth=4; ctx.lineCap="round";
+    for(let i=1;i<this.segs.length;i++){
+      const a=this.segs[i-1], b=this.segs[i];
+      if(dist2(a.x,a.y,b.x,b.y)>400) continue;
+      ctx.strokeStyle="rgba(20,20,24,"+(b.a*0.7).toFixed(3)+")";
+      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    }
+  }
+}
+
+// =========================================================================
+//  Game：状态机 + 主循环
+// =========================================================================
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const game=new (class Game {
+  constructor(){
+    this.state="menu";        // menu | select | countdown | race | results
+    this.keys={};
+    this.keyBindings=this.loadKeys();   // 可自定义按键：{up,down,left,right} 各为 code 数组
+    this.codeMap={};                     // 反向映射 code->action
+    this.rebinding=null;                 // 重绑中：{action,slot}
+    this.selTrack=0; this.selCar=0;
+    this.track=null; this.car=null;
+    this.particles=new ParticleSystem();
+    this.skids=new SkidMarks();
+    this.ghost=null; this.ghostFrames=[]; this.ghostRec=[];
+    this.shake=0; this._crashCd=0;
+    this.oppCars=[]; this.ranking=[]; this.playerPos=1;
+    this.last=performance.now();
+    this.audio=null; this.muted=false;
+    this.bindInput();
+    this.loop=this.loop.bind(this);
+    requestAnimationFrame(this.loop);
+  }
+  bindInput(){
+    this.rebuildCodeMap();
+    addEventListener("keydown",e=>{
+      // 重绑模式：捕获下一个按键作为该动作的键位
+      if(this.rebinding){
+        const {action, slot}=this.rebinding;
+        for(const a of ["up","down","left","right"])
+          this.keyBindings[a]=this.keyBindings[a].filter(c=>c!==e.code);
+        this.keyBindings[action][slot]=e.code;
+        this.saveKeys(); this.rebuildCodeMap();
+        this.rebinding=null; e.preventDefault(); return;
+      }
+      const act=this.codeMap[e.code];
+      if(act){ this.keys[act]=true; e.preventDefault(); }
+      if(e.code==="Enter" && this.state==="menu") this.state="select";
+      if(e.code==="KeyM") this.toggleMute();
+      if(e.code==="KeyP" && this.state==="race") this.paused=!this.paused;
+      // ESC 退出到主菜单（比赛/倒计时/结算/选择/按键设置均可）
+      if(e.code==="Escape"){
+        if(["race","countdown","results","select","controls"].includes(this.state)){
+          this.rebinding=null; this.state="menu";
+        }
+      }
+      // R 重试：重开当前赛道 / 车辆
+      if(e.code==="KeyR"){
+        if(["race","countdown","results"].includes(this.state)) this.chooseTrackCar(this.selTrack,this.selCar);
+      }
+    });
+    addEventListener("keyup",e=>{ const act=this.codeMap[e.code]; if(act) this.keys[act]=false; });
+    canvas.addEventListener("pointerdown",e=>this.onClick(e));
+  }
+  defaultKeys(){ return { up:["ArrowUp","KeyW"], down:["ArrowDown","KeyS"], left:["ArrowLeft","KeyA"], right:["ArrowRight","KeyD"] }; }
+  loadKeys(){
+    try{ const s=localStorage.getItem("nd_keys"); if(s){ const o=JSON.parse(s);
+      const d=this.defaultKeys();
+      for(const a of ["up","down","left","right"]) if(!Array.isArray(o[a])||!o[a].length) o[a]=d[a];
+      return o; } }catch(e){}
+    return this.defaultKeys();
+  }
+  saveKeys(){ try{ localStorage.setItem("nd_keys", JSON.stringify(this.keyBindings)); }catch(e){} }
+  rebuildCodeMap(){
+    const m={};
+    for(const a of ["up","down","left","right"]) for(const c of (this.keyBindings[a]||[])) m[c]=a;
+    this.codeMap=m;
+  }
+  prettyKey(code){
+    if(!code) return "—";
+    const map={ArrowUp:"↑",ArrowDown:"↓",ArrowLeft:"←",ArrowRight:"→",Space:"空格"};
+    if(map[code]) return map[code];
+    if(code.startsWith("Key")) return code.slice(3);
+    if(code.startsWith("Digit")) return code.slice(5);
+    if(code.startsWith("Numpad")) return "Num"+code.slice(6);
+    return code;
+  }
+  startAudio(){
+    if(this.audio||this.muted) return;
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext;
+      this.audio=new AC();
+      this.engine=this.audio.createOscillator();
+      this.engineGain=this.audio.createGain();
+      this.engine.type="sawtooth"; this.engine.frequency.value=60;
+      this.engineGain.gain.value=0.0;
+      this.engine.connect(this.engineGain).connect(this.audio.destination);
+      this.engine.start();
+    }catch(e){ this.audio=null; }
+  }
+  toggleMute(){ this.muted=!this.muted; if(this.audio){ if(this.muted) this.engineGain.gain.value=0; } }
+  crashSfx(){
+    if(!this.audio||this.muted) return;
+    const o=this.audio.createOscillator(), g=this.audio.createGain();
+    o.type="square"; o.frequency.setValueAtTime(120,this.audio.currentTime);
+    o.frequency.exponentialRampToValueAtTime(40,this.audio.currentTime+0.15);
+    g.gain.setValueAtTime(0.12,this.audio.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,this.audio.currentTime+0.18);
+    o.connect(g).connect(this.audio.destination); o.start(); o.stop(this.audio.currentTime+0.2);
+  }
+  onCrash(x,y){
+    if(this._crashCd>0) return;            // 冷却中：贴墙滑行时不连发火花/音效
+    this._crashCd=0.25;
+    this.particles.spark(x,y); this.shake=4; this.crashSfx();
+  }
+  // ---- 流程 ----
+  chooseTrackCar(t,c){
+    this.selTrack=t; this.selCar=c;
+    this.track=new Track(TRACK_DEFS[t]);
+    this.car=new Car(this.track, CAR_TYPES[c], c);
+    // 对手：4 辆表现不等的 AI 赛车
+    this.oppCars=[];
+    for(let i=0;i<OPPONENTS.length;i++){
+      const o=new Car(this.track, OPPONENTS[i], -1);
+      o.isAI=true; o.lap=0; o.finishTime=0; o._ci=0;
+      this.oppCars.push(o);
+    }
+    this.placeGrid();
+    this.particles=new ParticleSystem(); this.skids=new SkidMarks();
+    this.lapStart=0; this.lapTimes=[]; this.bestLap=this.loadBest(t);
+    this.totalStart=0; this.driftTotal=0; this.finished=false; this.finishWait=0;
+    this.playerPos=1; this.ranking=[this.car, ...this.oppCars];
+    this.ghost=null; this.ghostRec=[]; this.ghostFrames=this.loadGhost(t);
+    this.countdown=3.2; this.state="countdown";
+    this.paused=false;
+    this.cam={x:this.car.x, y:this.car.y, zoom:CAM_ZOOM};   // 相机初始对准起点
+    this.startAudio();
+  }
+  // 起步阵列：玩家 + 对手交错排在起点线后方（2 列）
+  placeGrid(){
+    const s=this.track.start, ang=this.track.startAngle;
+    const bx=-Math.cos(ang), by=-Math.sin(ang);   // 起点线后方（前进反方向）
+    const rx=-Math.sin(ang), ry=Math.cos(ang);    // 右向（横向偏移）
+    const cars=[this.car, ...this.oppCars];
+    cars.forEach((car,k)=>{
+      const row=Math.floor(k/2), col=k%2;
+      const back=24+row*44;
+      const lat=(col===0?-1:1)*this.track.halfW*0.42;
+      car.x=s[0]+bx*back+rx*lat;
+      car.y=s[1]+by*back+ry*lat;
+      car.angle=ang; car.vx=0; car.vy=0;
+      car.nextCp=0; car.lap=0; car.finished=false;
+      car.drifting=false; car.driftCombo=0; car.driftScore=0;
+    });
+  }
+  loadBest(t){ try{ return parseFloat(localStorage.getItem("nd_best_"+t))||null; }catch(e){ return null; } }
+  saveBest(t,v){ try{ localStorage.setItem("nd_best_"+t,v); }catch(e){} }
+  loadGhost(t){ try{ const s=localStorage.getItem("nd_ghost_"+t); return s?JSON.parse(s):null; }catch(e){ return null; } }
+  saveGhost(t,arr){ try{ localStorage.setItem("nd_ghost_"+t,JSON.stringify(arr)); }catch(e){} }
+
+  // ---- 圈/检查点逻辑 ----
+  updateRace(dt){
+    const f=clamp(dt/(1/60),0,2.2);
+    if(this.paused) return;
+    const now=performance.now();
+
+    // 玩家（仅未完赛时接受输入）
+    if(!this.car.finished) this.car.update(this.keys,f);
+    if(this.car.drifting){
+      this.skids.add(this.car.x,this.car.y);
+      this.particles.smoke(this.car.x-Math.cos(this.car.angle)*10, this.car.y-Math.sin(this.car.angle)*10);
+    }
+    if(!this.car.drifting && this.car.driftCombo===0 && this.car.driftScore!==this.driftTotal){
+      this.driftTotal=this.car.driftScore;
+    }
+
+    // 对手 AI（始终推进，直到全部完赛）
+    for(const o of this.oppCars){
+      if(o.finished) continue;
+      o._ci=this.nearestIndex(o);
+      const inp=this.aiInput(o);
+      o.update(inp,f);
+      if(o.drifting){
+        this.skids.add(o.x,o.y);
+        this.particles.smoke(o.x-Math.cos(o.angle)*10, o.y-Math.sin(o.angle)*10);
+      }
+    }
+
+    // 赛车间碰撞：软碰撞——互相推开 + 沿法线阻尼；玩家卷入时火花/震屏/音效
+    this.resolveCollisions();
+
+    // 进度（检查点 / 圈数），玩家与对手统一处理
+    this.stepProgress(this.car, now, true);
+    for(const o of this.oppCars) this.stepProgress(o, now, false);
+    this.computeRanking();
+
+    // 幽灵记录（仅玩家比赛中）
+    if(!this.car.finished){
+      this.ghostRec.push([this.car.x,this.car.y,this.car.angle]);
+      if(this.ghostRec.length>4000) this.ghostRec.shift();
+    }
+
+    // 引擎音随速度（玩家完赛后静音）
+    if(this.audio&&!this.muted&&!this.car.finished){
+      this.engine.frequency.value=60+this.car.speed*22;
+      this.engineGain.gain.value=0.04+this.car.speed*0.006;
+    }
+    this.particles.update(f); this.skids.update(f);
+    if(this.shake>0) this.shake*=Math.pow(0.85,f);
+    if(this._crashCd>0) this._crashCd-=dt;
+
+    // 结算判定：玩家冲线即按真实名次 + 对手位置估算时间立即结算，不再等待
+    if(this.car.finished){
+      this.endRace();
+      return;
+    }
+    this.updateCamera(dt);
+  }
+  // 车辆到中心线最近采样点索引（AI 前瞻 / 排名用）
+  nearestIndex(car){
+    const c=this.track.center; let best=0,bd=1e18;
+    for(let i=0;i<this.track.n;i++){ const dx=c[i][0]-car.x, dy=c[i][1]-car.y; const d=dx*dx+dy*dy; if(d<bd){bd=d;best=i;} }
+    return best;
+  }
+  // 对手 AI：朝中心线前瞻点转向，并随横向偏移回正，避免贴边卡死
+  aiInput(o){
+    const n=this.track.n, c=this.track.center, hw=this.track.halfW;
+    const ci=o._ci||0;
+    const a=c[ci], b=c[(ci+1)%n];
+    // 当前点切线与左法线
+    const tx=b[0]-a[0], ty=b[1]-a[1]; const tl=Math.hypot(tx,ty)||1;
+    const nx=-ty/tl, ny=tx/tl;
+    const off=(o.x-a[0])*nx + (o.y-a[1])*ny;     // 横向偏移（左为正）
+    const offr=Math.abs(off)/hw;                  // 归一化 0..1+（>1 已冲出）
+    // 用前方两点切线夹角估曲率：弯越急，前瞻越短、越早减速
+    const p1=c[(ci+4)%n], p2=c[(ci+10)%n];
+    const ang1=Math.atan2(p1[1]-a[1], p1[0]-a[0]);
+    const ang2=Math.atan2(p2[1]-p1[1], p2[0]-p1[0]);
+    let dA=ang2-ang1; while(dA>Math.PI) dA-=2*Math.PI; while(dA<-Math.PI) dA+=2*Math.PI;
+    const curve=clamp(Math.abs(dA)/0.7, 0, 1);     // 0 直道 .. 1 急弯
+    // 前瞻距离：短而有效，避免切弯外漂（直道略远、急弯更近，随速度小幅增）
+    const la=clamp(Math.round(5 - curve*2 + o.speed*0.25), 3, 8);
+    const tp=c[(ci+la)%n];
+    // 目标点 = 中心线前瞻点，并叠「横向回中」偏置：偏离越大越往中线拉，杜绝贴边外滑
+    const aimX=tp[0]-nx*off*0.9, aimY=tp[1]-ny*off*0.9;
+    let desired=Math.atan2(aimY-o.y, aimX-o.x);
+    let diff=desired-o.angle;
+    while(diff>Math.PI) diff-=2*Math.PI;
+    while(diff<-Math.PI) diff+=2*Math.PI;
+    const input={up:false,down:false,left:false,right:false,boostActive:false};
+    if(diff>0.03) input.right=true; else if(diff<-0.03) input.left=true;
+    const align=Math.abs(diff), sk=o.type.skill||1;
+    // 速度管理：默认全油保速——低速转向无力，必须保速才能循迹回中；
+    // 仅前方急弯且速度偏高 / 已贴边且偏差大 / 车头偏差极大 时收油刹车
+    const edgeDanger = offr>0.5;
+    const brake = (curve>0.55 && o.speed>5.5) || (edgeDanger && align>0.30) || align>1.3*sk;
+    if(brake) input.down=true; else input.up=true;
+    return input;
+  }
+  // 统一推进检查点 / 圈数（玩家记录圈速，对手只记账）
+  stepProgress(car, now, isPlayer){
+    if(car.finished) return;
+    const hw2=this.track.halfW*this.track.halfW;
+    if(car.nextCp < this.track.checkpoints.length){
+      const cp=this.track.checkpoints[car.nextCp];
+      if(dist2(car.x,car.y,cp[0],cp[1])<hw2) car.nextCp++;
+    } else {
+      if(dist2(car.x,car.y,this.track.start[0],this.track.start[1])<hw2){
+        if(isPlayer){
+          const lapMs=now-this.lapStart;
+          this.lapTimes.push(lapMs);
+          if(this.bestLap===null||lapMs<this.bestLap){ this.bestLap=lapMs; this.saveBest(this.selTrack,lapMs);
+            this.ghost=this.ghostRec.slice(); this.saveGhost(this.selTrack,this.ghost); }
+          this.lapStart=now; this.car.nextCp=0;
+          if(this.lapTimes.length>=LAPS){ this.car.finished=true; this.car.finishTime=now-this.totalStart; }
+        } else {
+          car.lap++; car.nextCp=0;
+          if(car.lap>=LAPS){ car.finished=true; car.finishTime=now-this.totalStart; }
+        }
+      }
+    }
+  }
+  // 赛车间碰撞：软碰撞——互相推开 + 沿法线阻尼；玩家卷入时火花/震屏/音效
+  resolveCollisions(){
+    const cars=[this.car, ...this.oppCars];
+    const R=15;   // 碰撞阈值（约半车长，仅真正贴近才触发）
+    for(let i=0;i<cars.length;i++){
+      for(let j=i+1;j<cars.length;j++){
+        const a=cars[i], b=cars[j];
+        const dx=b.x-a.x, dy=b.y-a.y;
+        const d=Math.hypot(dx,dy);
+        if(d>=R || d<1e-4) continue;
+        const nx=dx/d, ny=dy/d, overlap=R-d;
+        // 沿法线互相推开，消除重叠
+        a.x-=nx*overlap*0.5; a.y-=ny*overlap*0.5;
+        b.x+=nx*overlap*0.5; b.y+=ny*overlap*0.5;
+        // 沿法线分量：逼近则阻尼（顶撞后滑开，不反弹）
+        const av=a.vx*nx+a.vy*ny, bv=b.vx*nx+b.vy*ny;
+        const rel=av-bv;
+        if(rel>0){
+          const imp=rel*0.5;
+          a.vx-=imp*nx; a.vy-=imp*ny;
+          b.vx+=imp*nx; b.vy+=imp*ny;
+        }
+        // 玩家卷入：火花 + 震屏 + 音效（受冷却限制，避免连发）
+        if(a===this.car || b===this.car) this.onCrash((a.x+b.x)/2,(a.y+b.y)/2);
+      }
+    }
+  }
+  // 实时排名：全部车按完赛时间（玩家真实、对手真实或位置估算）排序
+  computeRanking(){
+    const cars=[this.car, ...this.oppCars];
+    const arr=cars.map(c=>{
+      const lap=(c===this.car)?this.lapTimes.length:(c.lap||0);
+      const frac=(c._ci||0)/this.track.n;
+      return {c, lap, score:lap+frac, finished:!!c.finished, t:(c.finishTime||Infinity)};
+    });
+    arr.sort((a,b)=>{
+      if(a.t!==b.t) return a.t-b.t;                       // 完赛时间（含估算）升序
+      if(a.finished!==b.finished) return a.finished?-1:1; // 同时间则完赛者在前
+      return b.score-a.score;                             // 都未完赛则比进度
+    });
+    this.ranking=arr.map(x=>x.c);
+    this.playerPos=this.ranking.indexOf(this.car)+1;
+  }
+  // 按当前位置+速度估算未完赛车的完赛时间（相对 totalStart 的毫秒）
+  estimateFinish(car, raceElapsed){
+    const speed=Math.max(car.speed, 0.4);                  // 防 0 速导致无穷
+    const P=this.track.perimeter||6000;                   // 中心线周长（世界单位）
+    const lapMs=P*1000/(speed*60*Math.min(1,car.type.skill||1)); // 当前速度跑一圈所需 ms
+    const progLaps=(car.lap||0)+((car._ci||0)/this.track.n);
+    const remain=Math.max(0, LAPS-progLaps);
+    let est=raceElapsed+remain*lapMs;
+    // 合理上限：即便以极速巡航也难快过此值，避免卡死时估计离谱地偏大
+    const fastLapMs=P*1000/(car.type.maxSpeed*60*0.65);
+    est=Math.min(est, raceElapsed+remain*fastLapMs);
+    return est;
+  }
+  updateCamera(dt, tx, ty){
+    if(!this.car||!this.cam) return;
+    // 平滑跟随 + 速度方向前瞻：提前看到即将进入的弯道
+    if(tx===undefined){ tx=this.car.x + this.car.vx*0.3; ty=this.car.y + this.car.vy*0.3; }
+    const k=1-Math.pow(0.0025, dt);   // 帧率无关平滑，时间常数≈0.3s（镜头在范围内柔和跟随）
+    this.cam.x += (tx-this.cam.x)*k;
+    this.cam.y += (ty-this.cam.y)*k;
+  }
+  // 玩家冲线即结算：未完赛对手按当前位置估算完赛时间，无需等待
+  endRace(){
+    this.state="results";
+    this.totalMs=this.car.finishTime;
+    // 未完赛对手按其当前进度+速度估算完赛时间（相对 totalStart）
+    for(const o of this.oppCars){
+      if(o.finished) continue;
+      o.finishTime=this.estimateFinish(o, this.totalMs);
+      o.estimated=true;
+    }
+    this.computeRanking();              // 含估算时间，得出真实名次
+    // 评级以名次为主，末位永远不得 S
+    const rank=this.playerPos;          // 1..5（1=第一）
+    const par=this.track.par;          // 已按赛道长度缩放
+    let rating="C";
+    if(rank===1) rating = (this.totalMs<=par) ? "S" : "A";
+    else if(rank===2) rating="A";
+    else if(rank===3) rating="B";
+    else rating="C";
+    this.rating=rating;
+    if(this.audio) this.engineGain.gain.value=0;
+  }
+
+  // ---- 主循环 ----
+  loop(now){
+    const dt=Math.min(0.05,(now-this.last)/1000); this.last=now;
+    this.update(dt); this.render();
+    requestAnimationFrame(this.loop);
+  }
+  update(dt){
+    if(this.state==="countdown"){
+      this.countdown-=dt;
+      if(this.countdown<=0){
+        this.state="race"; this.totalStart=performance.now(); this.lapStart=performance.now();
+        this.ghostRec=[];
+      }
+    } else if(this.state==="race"){
+      this.updateRace(dt);
+    }
+  }
+
+  // ---- 渲染 ----
+  render(){
+    ctx.setTransform(1,0,0,1,0,0);
+    this._hitRects=[];   // 每帧重置点击热区，由各界面按需 push
+    // 屏震
+    let sx=0,sy=0;
+    if(this.shake>0.3){ sx=(Math.random()*2-1)*this.shake; sy=(Math.random()*2-1)*this.shake; }
+    ctx.save(); ctx.translate(sx,sy);
+
+    if(this.state==="menu"||this.state==="help"){ this.renderMenu(); ctx.restore(); return; }
+    if(this.state==="controls"){ this.renderControls(); ctx.restore(); return; }
+    if(this.state==="select"){ this.renderSelect(); ctx.restore(); return; }
+
+    // 比赛 / 倒计时 / 结算：相机跟随，仅展示车周围局部赛道
+    ctx.fillStyle="#0b0f17"; ctx.fillRect(0,0,CW,CH);   // 屏幕空间底，避免相机视口外露黑
+    ctx.save();
+    const z=this.cam?this.cam.zoom:CAM_ZOOM;
+    ctx.translate(CW/2, CH/2); ctx.scale(z,z); ctx.translate(-this.cam.x, -this.cam.y);
+    this.track.render(ctx, this.car ? this.car.nextCp : 0);
+    this.skids.render(ctx);
+    // 幽灵车（破纪录后或读取历史最佳时显示）
+    if(this.state==="race" && this.ghost && this.ghost.length){
+      const gi=Math.floor((performance.now()-this.lapStart)/(1000/60))%this.ghost.length;
+      const g=this.ghost[gi]; if(g){ ctx.save(); ctx.globalAlpha=0.35; ctx.translate(g[0],g[1]); ctx.rotate(g[2]);
+        ctx.fillStyle="#9fd0ff"; ctx.fillRect(-13,-7,26,14); ctx.restore(); }
+    }
+    this.particles.render(ctx);
+    for(const o of (this.oppCars||[])){ o.render(ctx); this.renderCarLabel(ctx,o); }
+    this.car.render(ctx);
+    ctx.restore();
+
+    if(this.state==="countdown") this.renderCountdown();
+    this.renderHUD();
+    if(this.state==="results") this.renderResults();
+    ctx.restore();
+  }
+
+  renderMenu(){
+    ctx.fillStyle="#06070d"; ctx.fillRect(0,0,CW,CH);
+    // 背景漂移字
+    ctx.textAlign="center";
+    ctx.save();
+    ctx.shadowColor="#4ea1ff"; ctx.shadowBlur=24;
+    ctx.fillStyle="#eaf2ff"; ctx.font="bold 86px sans-serif";
+    ctx.fillText("霓虹漂移", CW/2, 240);
+    ctx.shadowBlur=0; ctx.fillStyle="#7fa8ff"; ctx.font="22px sans-serif";
+    ctx.fillText("NEON  DRIFT", CW/2, 285);
+    ctx.restore();
+    ctx.fillStyle="#aab6d6"; ctx.font="15px sans-serif";
+    ctx.fillText("高速入弯 → 侧滑 → 反打方向 → 给油出弯", CW/2, 340);
+    this.btn(CW/2-120, 380, 240, 52, "开始游戏", "#4ea1ff", ()=>this.state="select");
+    this.btn(CW/2-120, 444, 240, 52, "按键设置", "#ffd166", ()=>this.state="controls");
+    this.btn(CW/2-120, 508, 240, 52, "操作说明", "#54d6a0", ()=>this.state="help");
+    if(this.state==="help") this.renderHelp();
+  }
+  renderHelp(){
+    ctx.fillStyle="rgba(5,7,14,0.92)"; ctx.fillRect(0,0,CW,CH);
+    ctx.textAlign="center"; ctx.fillStyle="#eaf2ff"; ctx.font="bold 30px sans-serif";
+    ctx.fillText("操作说明", CW/2, 120);
+    ctx.font="18px sans-serif"; ctx.fillStyle="#cdd8f5"; ctx.textAlign="left";
+    const lines=[
+      "W / ↑  油门加速      S / ↓  刹车 / 倒车",
+      "A / ←  左转          D / →  右转",
+      "高速转弯自动进入漂移，反打方向控制滑移角度",
+      "漂移越久、滑移角越大，漂移积分越高",
+      "P 暂停   M 静音   ESC 退出到主菜单   R 比赛中随时重试",
+      "赛道上有 4 名 AI 对手（赤焰/金隼/碧波/墨影），性能各异，争抢名次",
+      "按键可在主菜单「按键设置」中自定义（每个动作可绑 2 个键）",
+      "目标：3 圈内跑完，依次穿过 4 个检查点再冲过起点线",
+      "草地会大幅减速（可冲出、不碰撞）；黄色发光门为下一个检查点",
+    ];
+    lines.forEach((t,i)=>ctx.fillText(t, CW/2-300, 190+i*40));
+    ctx.textAlign="center"; this.btn(CW/2-90, 600, 180, 46, "返回", "#ff5d8f", ()=>this.state="menu");
+  }
+  renderControls(){
+    ctx.fillStyle="#06070d"; ctx.fillRect(0,0,CW,CH);
+    ctx.textAlign="center"; ctx.fillStyle="#eaf2ff"; ctx.font="bold 34px sans-serif";
+    ctx.fillText("按键设置", CW/2, 70);
+    ctx.font="14px sans-serif"; ctx.fillStyle="#9fb0d6";
+    ctx.fillText("点击右侧键位 → 按下新键完成重绑（每个动作可绑 2 个键）", CW/2, 104);
+    const acts=[["up","油门 / 加速"],["down","刹车 / 倒车"],["left","左转"],["right","右转"]];
+    const x=CW/2-260, w=520;
+    acts.forEach((a,i)=>{
+      const y=140+i*72;
+      ctx.textAlign="left"; ctx.fillStyle="#dfe6ff"; ctx.font="bold 20px sans-serif";
+      ctx.fillText(a[1], x, y+34);
+      for(let s=0;s<2;s++){
+        const kx=x+200+s*150, kw=140, ky=y, kh=48;
+        const listening = this.rebinding && this.rebinding.action===a[0] && this.rebinding.slot===s;
+        ctx.fillStyle = listening ? "rgba(78,161,255,0.25)" : "rgba(14,19,32,0.9)";
+        ctx.fillRect(kx,ky,kw,kh);
+        ctx.strokeStyle = listening ? "#4ea1ff" : "#33405e"; ctx.lineWidth=2; ctx.strokeRect(kx,ky,kw,kh);
+        ctx.fillStyle = listening ? "#4ea1ff" : "#cdd8f5"; ctx.textAlign="center"; ctx.font="bold 18px sans-serif";
+        const label = listening ? "按下按键…" : this.prettyKey(this.keyBindings[a[0]][s]);
+        ctx.fillText(label, kx+kw/2, ky+kh/2+6);
+        this._hitRects.push({x:kx,y:ky,w:kw,h:kh,fn:()=>{ this.rebinding={action:a[0],slot:s}; }});
+      }
+    });
+    this.btn(CW/2-220, 470, 200, 54, "恢复默认", "#ff5d8f", ()=>{ this.rebinding=null; this.keyBindings=this.defaultKeys(); this.saveKeys(); this.rebuildCodeMap(); });
+    this.btn(CW/2+20, 470, 200, 54, "返回", "#54d6a0", ()=>{ this.rebinding=null; this.state="menu"; });
+  }
+  renderSelect(){
+    ctx.fillStyle="#06070d"; ctx.fillRect(0,0,CW,CH);
+    ctx.textAlign="center"; ctx.fillStyle="#eaf2ff"; ctx.font="bold 34px sans-serif";
+    ctx.fillText("选择赛道与车辆", CW/2, 70);
+        // 赛道卡（4 列网格，适配更多赛道）
+    const cols= 4, tw=290, th=116, gx=30, gy=70;
+    for(let i=0;i<TRACK_DEFS.length;i++){
+      const col=i%cols, row=Math.floor(i/cols);
+      const x=gx+col*(tw+12), y=gy+row*(th+14);
+      const on=this.selTrack===i;
+      ctx.strokeStyle=on?TRACK_DEFS[i].color:"#2a3145"; ctx.lineWidth=on?3:1.5;
+      ctx.fillStyle="#0e1320"; ctx.fillRect(x,y,tw,th); ctx.strokeRect(x,y,tw,th);
+      ctx.fillStyle=TRACK_DEFS[i].color; ctx.font="bold 20px sans-serif";
+      ctx.fillText(TRACK_DEFS[i].name, x+tw/2, y+34);
+      ctx.fillStyle="#9fb0d6"; ctx.font="13px sans-serif";
+      ctx.fillText("难度 "+"★".repeat(TRACK_DEFS[i].diff||1)+"  路宽 "+TRACK_DEFS[i].width, x+tw/2, y+66);
+      const b=this.loadBest(i);
+      ctx.fillStyle="#7fa8ff";
+      ctx.fillText(b?("最佳圈 "+(b/1000).toFixed(2)+"s"):"最佳圈 --", x+tw/2, y+94);
+      this._hitRects.push({x,y,w:tw,h:th,fn:()=>this.selTrack=i});
+    }
+    // 车辆卡
+    const cy=330;
+    for(let i=0;i<3;i++){
+      const x=gx+i*330, y=cy, w=290, h=130;
+      const on=this.selCar===i;
+      ctx.strokeStyle=on?CAR_TYPES[i].color:"#2a3145"; ctx.lineWidth=on?3:1.5;
+      ctx.fillStyle="#0e1320"; ctx.fillRect(x,y,w,h); ctx.strokeRect(x,y,w,h);
+      // 车标
+      ctx.fillStyle=CAR_TYPES[i].color; ctx.fillRect(x+28,y+46,60,26);
+      ctx.fillStyle="#eaf2ff"; ctx.font="bold 20px sans-serif";
+      ctx.fillText(CAR_TYPES[i].name, x+w/2, y+42);
+      ctx.fillStyle="#9fb0d6"; ctx.font="13px sans-serif";
+      ctx.fillText(CAR_TYPES[i].desc, x+w/2, y+76);
+      ctx.fillText("极速 "+CAR_TYPES[i].maxSpeed+"  抓地 "+CAR_TYPES[i].normalLat, x+w/2, y+102);
+      this._hitRects.push({x,y,w,h,fn:()=>this.selCar=i});
+    }
+    this.btn(CW/2-220, 500, 200, 54, "← 返回", "#ff5d8f", ()=>this.state="menu");
+    this.btn(CW/2+20, 500, 200, 54, "开始比赛 ▶", "#54d6a0", ()=>this.chooseTrackCar(this.selTrack,this.selCar));
+    this._selHint=true;
+  }
+  renderCountdown(){
+    const n=Math.ceil(this.countdown-0.2);
+    ctx.textAlign="center"; ctx.fillStyle="#fff";
+    ctx.save(); ctx.shadowColor="#4ea1ff"; ctx.shadowBlur=30; ctx.font="bold 130px sans-serif";
+    ctx.fillText(n>0?String(n):"GO!", CW/2, CH/2+40);
+    ctx.restore();
+  }
+  renderHUD(){
+    const c=this.car, now=performance.now();
+    // 左上：圈数
+    ctx.textAlign="left"; ctx.fillStyle="#dfe6ff"; ctx.font="bold 22px sans-serif";
+    ctx.fillText("圈 "+(Math.min(this.lapTimes.length+1,LAPS))+" / "+LAPS, 24, 36);
+    // 中上：实时排名
+    ctx.textAlign="center"; ctx.fillStyle="#dfe6ff"; ctx.font="bold 20px sans-serif";
+    ctx.fillText("排名 "+this.playerPos+" / "+(1+(this.oppCars?this.oppCars.length:0)), CW/2, 36);
+    // 右上：当前圈速 + 最佳
+    ctx.textAlign="right"; ctx.font="16px sans-serif"; ctx.fillStyle="#9fb0d6";
+    const lapMs = c.finished?0:(this.state==="countdown"?0:(now-this.lapStart));
+    ctx.fillText("本圈 "+(lapMs/1000).toFixed(2)+"s", CW-24, 30);
+    ctx.fillText("最佳 "+(this.bestLap?(this.bestLap/1000).toFixed(2)+"s":"--"), CW-24, 52);
+    if(this.car.nextCp<this.track.checkpoints.length){
+      ctx.fillStyle="#ffd166"; ctx.fillText("检查点 "+(this.car.nextCp+1)+"/4", CW-24, 74);
+    } else { ctx.fillStyle="#54d6a0"; ctx.fillText("冲线!", CW-24, 74); }
+    // 左下：速度表
+    const sp=c.speed, max=11;
+    ctx.save(); ctx.translate(90, CH-90);
+    ctx.strokeStyle="#2a3145"; ctx.lineWidth=8; ctx.beginPath(); ctx.arc(0,0,52,Math.PI*0.75,Math.PI*2.25); ctx.stroke();
+    const ang=Math.PI*0.75 + (sp/max)*(Math.PI*1.5);
+    ctx.strokeStyle="#4ea1ff"; ctx.shadowColor="#4ea1ff"; ctx.shadowBlur=10; ctx.lineWidth=8;
+    ctx.beginPath(); ctx.arc(0,0,52,Math.PI*0.75,ang); ctx.stroke(); ctx.shadowBlur=0;
+    ctx.fillStyle="#eaf2ff"; ctx.textAlign="center"; ctx.font="bold 22px sans-serif";
+    ctx.fillText(Math.round(sp*14), 0, 6); ctx.font="11px sans-serif"; ctx.fillStyle="#9fb0d6";
+    ctx.fillText("km/h", 0, 24); ctx.restore();
+    // 右下：漂移积分
+    ctx.textAlign="right"; ctx.fillStyle="#ffd166"; ctx.font="bold 18px sans-serif";
+    const shown = c.driftScore + Math.round(c.driftCombo);
+    ctx.fillText("漂移 " + shown, CW-24, CH-60);
+    // 连击充能条
+    const bw=180, bx=CW-24-bw, by=CH-48;
+    ctx.fillStyle="#2a3145"; ctx.fillRect(bx,by,bw,8);
+    const cf=clamp(c.driftCombo/120,0,1);
+    ctx.fillStyle="#ff8c42"; ctx.fillRect(bx,by,bw*cf,8);
+    // 漂移状态字
+    if(c.drifting){ ctx.textAlign="center"; ctx.fillStyle="#ff8c42"; ctx.font="bold 20px sans-serif";
+      ctx.fillText("DRIFT!", CW/2, 60); }
+    if(c.offTrack){ ctx.textAlign="center"; ctx.fillStyle="#ffd166"; ctx.font="bold 20px sans-serif";
+      ctx.fillText("冲出赛道 · 减速中", CW/2, 92); }
+    // 迷你地图
+    this.renderMinimap();
+    // 下一个检查点屏幕外时的边缘指引箭头
+    this.renderNextCpArrow(ctx);
+    // 暂停
+    if(this.paused){ ctx.textAlign="center"; ctx.fillStyle="#fff"; ctx.font="bold 40px sans-serif";
+      ctx.fillText("暂停 (P 继续)", CW/2, CH/2); }
+    // 操作提示
+    ctx.textAlign="center"; ctx.fillStyle="rgba(160,176,214,0.7)"; ctx.font="12px sans-serif";
+    ctx.fillText("ESC 退出  ·  R 重试  ·  P 暂停", CW/2, CH-14);
+  }
+  renderNextCpArrow(ctx){
+    if(!this.car || this.state!=="race" || this.car.finished) return;
+    if(this.car.nextCp>=this.track.checkpoints.length) return;   // 已过全部检查点，等冲线
+    const cp=this.track.checkpoints[this.car.nextCp];
+    const z=this.cam?this.cam.zoom:CAM_ZOOM;
+    // 检查点屏幕坐标
+    const sx=CW/2+(cp[0]-this.cam.x)*z, sy=CH/2+(cp[1]-this.cam.y)*z;
+    const margin=80;
+    const onScreen = sx>margin && sx<CW-margin && sy>margin && sy<CH-margin;
+    if(onScreen) return;   // 世界里的发光门已可见，无需箭头
+    // 屏幕边缘箭头（指向检查点方向）
+    const ang=Math.atan2(sy-CH/2, sx-CW/2);
+    const r=Math.min(CW,CH)/2 - 80;
+    const ax=CW/2+Math.cos(ang)*r, ay=CH/2+Math.sin(ang)*r;
+    const pulse=0.6+0.4*Math.sin(performance.now()/250);
+    ctx.save();
+    ctx.translate(ax,ay); ctx.rotate(ang);
+    ctx.fillStyle="rgba(255,209,102,"+pulse.toFixed(2)+")";
+    ctx.shadowColor="#ffd166"; ctx.shadowBlur=14;
+    ctx.beginPath(); ctx.moveTo(20,0); ctx.lineTo(-14,-13); ctx.lineTo(-14,13); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    // 距离（世界单位近似）
+    const dist=Math.hypot(cp[0]-this.car.x, cp[1]-this.car.y);
+    ctx.fillStyle="#ffd166"; ctx.font="bold 14px sans-serif"; ctx.textAlign="center";
+    ctx.fillText((dist/14).toFixed(0)+"m", ax, ay+(Math.sin(ang)>0?34:-24));
+    ctx.shadowBlur=0;
+  }
+  renderMinimap(){
+    const mx=CW-150, my=110, mw=126, mh=72;
+    ctx.save(); ctx.globalAlpha=0.85;
+    ctx.fillStyle="rgba(8,11,20,0.7)"; ctx.fillRect(mx,my,mw,mh);
+    ctx.strokeStyle="#33405e"; ctx.strokeRect(mx,my,mw,mh);
+    // 赛道中心线缩略
+    const sx=mw/this.track.center.length;
+    ctx.strokeStyle=this.track.color; ctx.lineWidth=2; ctx.beginPath();
+    let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;
+    for(const p of this.track.center){ minX=Math.min(minX,p[0]);minY=Math.min(minY,p[1]);maxX=Math.max(maxX,p[0]);maxY=Math.max(maxY,p[1]); }
+    const pad=20, sw=(mw-pad*2)/(maxX-minX), sh=(mh-pad*2)/(maxY-minY), s=Math.min(sw,sh);
+    const ox=mx+pad-minX*s, oy=my+pad-minY*s;
+    this.track.center.forEach((p,i)=>{ const X=ox+p[0]*s, Y=oy+p[1]*s; i?ctx.lineTo(X,Y):ctx.moveTo(X,Y); });
+    ctx.closePath(); ctx.stroke();
+    // 对手点
+    for(const o of (this.oppCars||[])){
+      ctx.fillStyle=o.type.color; ctx.beginPath();
+      ctx.arc(ox+o.x*s, oy+o.y*s, 2.6, 0, Math.PI*2); ctx.fill();
+    }
+    // 玩家点
+    ctx.fillStyle="#fff"; ctx.beginPath();
+    ctx.arc(ox+this.car.x*s, oy+this.car.y*s, 3, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+  renderResults(){
+    ctx.fillStyle="rgba(5,7,14,0.85)"; ctx.fillRect(0,0,CW,CH);
+    ctx.textAlign="center";
+    ctx.fillStyle="#eaf2ff"; ctx.font="bold 40px sans-serif"; ctx.fillText("比赛结束", CW/2, 96);
+    ctx.fillStyle="#ffd166"; ctx.font="bold 76px sans-serif"; ctx.fillText(this.rating, CW/2, 188);
+    // 名次榜
+    this.computeRanking();
+    const list=this.ranking||[this.car];
+    ctx.font="bold 18px sans-serif";
+    for(let i=0;i<list.length;i++){
+      const car=list[i], isP=(car===this.car);
+      ctx.textAlign="left"; ctx.fillStyle=isP?"#ffffff":car.type.color;
+      const label=(i+1)+". "+(isP?("你 · "+car.type.name):car.type.name);
+      ctx.fillText(label, CW/2-230, 250+i*32);
+      ctx.textAlign="right";
+      let res;
+      if(car===this.car) res=(this.totalMs/1000).toFixed(2)+"s";
+      else res=(car.finishTime/1000).toFixed(2)+"s";
+      ctx.fillStyle=isP?"#ffffff":"#aab6d6";
+      ctx.fillText(res, CW/2+230, 250+i*32);
+    }
+    const baseY=250+list.length*32;
+    ctx.textAlign="center"; ctx.fillStyle="#cdd8f5"; ctx.font="18px sans-serif";
+    ctx.fillText("最佳单圈 "+(this.bestLap?(this.bestLap/1000).toFixed(2)+"s":"--"), CW/2, baseY+24);
+    ctx.fillText("漂移积分 "+(this.car.driftScore+Math.round(this.car.driftCombo)), CW/2, baseY+50);
+    ctx.fillStyle="#7fa8ff"; ctx.font="15px sans-serif";
+    ctx.fillText("R 重试    ESC 返回菜单", CW/2, baseY+86);
+    this.btn(CW/2-220, baseY+108, 200, 54, "重试 (R)", "#54d6a0", ()=>this.chooseTrackCar(this.selTrack,this.selCar));
+    this.btn(CW/2+20, baseY+108, 200, 54, "返回菜单 (ESC)", "#ff5d8f", ()=>this.state="menu");
+  }
+
+  // ---- 通用 UI ----
+  renderCarLabel(ctx,car){
+    ctx.save(); ctx.translate(car.x, car.y-18);
+    ctx.fillStyle=car.type.color; ctx.font="bold 11px sans-serif"; ctx.textAlign="center";
+    ctx.fillText(car.type.name, 0, 0); ctx.restore();
+  }
+  btn(x,y,w,h,label,color,fn){
+    if(this._hitRects===undefined) this._hitRects=[];
+    const hover=false;
+    ctx.save();
+    ctx.fillStyle="rgba(14,19,32,0.9)"; ctx.fillRect(x,y,w,h);
+    ctx.strokeStyle=color; ctx.lineWidth=2; ctx.strokeRect(x,y,w,h);
+    ctx.fillStyle=color; ctx.textAlign="center"; ctx.font="bold 20px sans-serif";
+    ctx.fillText(label, x+w/2, y+h/2+7);
+    ctx.restore();
+    this._hitRects.push({x,y,w,h,fn});
+  }
+  onClick(e){
+    const r=canvas.getBoundingClientRect();
+    const x=(e.clientX-r.left)*(CW/r.width), y=(e.clientY-r.top)*(CH/r.height);
+    const rects=this._hitRects||[];
+    // 从后往前（上层优先）
+    for(let i=rects.length-1;i>=0;i--){ const b=rects[i];
+      if(x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h){ b.fn(); break; }
+    }
+  }
+})();
+</script>
+<!-- LELELE-ATTRIBUTION-VISIBLE -->
+<div data-lelele-attribution style="position:fixed;right:6px;bottom:4px;z-index:2147483647;pointer-events:none;opacity:.38;font:10px/1.2 system-ui,-apple-system,sans-serif;color:#777;text-shadow:0 1px 1px #fff;letter-spacing:.02em">作者：highwindmx · GNU GPL v3.0</div>
+</body>
+</html>

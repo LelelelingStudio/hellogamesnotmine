@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>粒子花火 · Magnetic Collider</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#0a0a0f;color:#eef2fb;
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  /* 返回主集合按钮：与集合内其他游戏页一致 */
+  .back-home{position:fixed;top:14px;left:14px;z-index:9999;
+    display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:10px;
+    text-decoration:none;font-size:13px;color:#eef2fb;
+    background:rgba(18,22,38,.62);backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,.14);}
+  .back-home:hover{border-color:#b08bff;}
+  .stage{max-width:800px;margin:54px auto 0;padding:0 14px;}
+  canvas{display:block;width:100%;max-width:800px;height:auto;
+    background:#0a0a0f;border:1px solid #20283c;border-radius:12px;
+    touch-action:none;cursor:default;}
+  .panel{max-width:800px;margin:14px auto 0;padding:0 14px;
+    display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between;}
+  .ctrl{display:flex;align-items:center;gap:12px;flex:1;min-width:260px;}
+  .ctrl label{font-size:13px;color:#9aa7c4;white-space:nowrap;}
+  .ctrl #strVal{color:#eef2fb;font-weight:700;font-variant-numeric:tabular-nums;}
+  input[type=range]{flex:1;accent-color:#b08bff;}
+  .btns{display:flex;gap:10px;}
+  .btn{font-size:14px;font-weight:600;color:#0a0a0f;background:#b08bff;border:none;
+    padding:9px 16px;border-radius:10px;cursor:pointer;transition:filter .15s ease;}
+  .btn:hover{filter:brightness(1.08);}
+  .btn.ghost{background:transparent;color:#eef2fb;border:1px solid #2c3650;font-weight:500;}
+  .btn.ghost:hover{border-color:#b08bff;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;filter:none;}
+  .status{max-width:800px;margin:14px auto 0;padding:10px 16px;border-radius:10px;
+    background:rgba(255,255,255,.04);border:1px solid #20283c;
+    font-size:14px;color:#9aa7c4;text-align:center;font-variant-numeric:tabular-nums;}
+  .status.ok{color:#54d6a0;border-color:#2c5a45;}
+  .status.bad{color:#ff6b6b;border-color:#5a2c2c;}
+  .legend{max-width:800px;margin:14px auto 28px;padding:14px 16px;border-radius:10px;
+    background:rgba(255,255,255,.03);border:1px solid #20283c;
+    font-size:13px;color:#9aa7c4;line-height:1.7;}
+  .legend b{color:#cdd6ea;}
+  .legend .k{display:inline-block;width:11px;height:11px;border-radius:3px;
+    vertical-align:-1px;margin:0 4px 0 10px;}
+</style>
+</head>
+<body>
+<a class="back-home" href="../index.html">← 游戏集合</a>
+
+<div class="stage">
+  <canvas id="game" width="800" height="460"></canvas>
+</div>
+
+<div class="panel">
+  <div class="ctrl">
+    <label>选中磁极强度 <span id="strVal">5.0</span></label>
+    <input id="strength" type="range" min="-10" max="10" step="0.5" value="5.0">
+  </div>
+  <div class="btns">
+    <button id="add" class="btn ghost">＋ 磁极</button>
+    <button id="flip" class="btn ghost">翻转选中</button>
+    <button id="pause" class="btn">暂停</button>
+    <button id="reset" class="btn ghost">重置</button>
+  </div>
+</div>
+
+<div id="status" class="status">自动脉冲发射中 · 拖拽/点击磁极设计磁场，让粒子命中右侧靶标</div>
+
+<div class="legend">
+  <b>玩法</b>：你不能直接控制粒子，只能<b>设计磁场</b>。粒子从发射源<b>自动脉冲式</b>喷出；
+  灰色虚线是下一发脉冲的预测轨迹（与实飞共用同一套物理，所见即所飞）。
+  <b>磁场流线</b>按真实矢量场积分：蓝=N 极向外、红=S 极向内，多极共存时流线弯曲、形成偶极回线。
+  <b>操作</b>：拖拽磁极移动 · <b>点击</b>选中（滑杆/翻转只作用于选中者，黄圈标记）· <b>右键</b>删除磁极 · 用 ＋磁极 增减数量，极性由强度滑杆/翻转键决定（无需分 N/S 按钮）。
+  <span class="k" style="background:#4ea1ff"></span>N 极（逆时针偏转）
+  <span class="k" style="background:#ff6b6b"></span>S 极（顺时针偏转）
+  <span class="k" style="background:#54d6a0"></span>靶标
+  <span class="k" style="background:#f87171"></span>粒子
+</div>
+
+<script>
+"use strict";
+// ===== 常量 =====
+const W = 800, H = 460;
+const DT = 0.08;          // 积分步长
+const V0 = 4.5;           // 初速度（水平向右）
+const STEPS = 350;        // 预测线积分步数
+const MIN_D = 12;         // 磁场最小作用距离（防除零）
+const OOB = 50;           // 出界缓冲 ±px
+const POLE_R = 18;        // 磁极半径
+const SRC = { x: 80, y: H / 2 };
+const TGT = { x: W - 80, y: H / 2 };
+const SRC_R = 14, TGT_R = 22;
+const SUB = 5;            // 每帧积分步数
+const PULSE_INTERVAL = 0.6; // 自动脉冲间隔（秒）
+const MAX_PARTICLES = 60;   // 同屏脉冲上限
+
+// ===== 状态 =====
+let poles = [{ x: W / 2, y: 140, strength: 5.0 }];
+let particles = [];       // 多粒子脉冲流（无寿命，仅出界/命中结束）
+let running = true;       // 自动脉冲发射开关
+let pulseTimer = 0;
+let hitCount = 0;         // 累计命中脉冲数
+let targetGlow = 0;       // 命中后靶标高亮衰减量 [0,1]
+let simTime = 0;          // 磁场流线动画时钟
+let dragging = null, dragOffset = { x: 0, y: 0 };
+let selected = poles[0];   // 当前选中的磁极（滑杆/翻转只作用于它）
+let lastT = 0;
+const MAX_POLES = 12;      // 磁极数量上限
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const strengthEl = document.getElementById("strength");
+const strVal = document.getElementById("strVal");
+const pauseBtn = document.getElementById("pause");
+const resetBtn = document.getElementById("reset");
+const flipBtn = document.getElementById("flip");
+const addBtn = document.getElementById("add");
+const statusEl = document.getElementById("status");
+
+// ===== 物理 =====
+// 洛伦兹力：F = q(v × B)。本游戏粒子为电子，取 q = Q = -1（负电荷），
+// 故加速度 a = (-B·vy, B·vx)：N 极(strength>0)使粒子逆时针偏转，S 极顺时针（与需求文档 2.2 一致）。
+const Q = -1;
+function getBField(x, y) {
+  let b = 0;
+  for (const p of poles) {
+    let dx = x - p.x, dy = y - p.y;
+    let d = Math.hypot(dx, dy);
+    if (d < MIN_D) d = MIN_D;          // 防除零
+    b += p.strength / d;               // 径向衰减，带符号（N 正 / S 负）
+  }
+  return b;
+}
+// 单步欧拉积分（预测线与实飞共用，保证一致）
+function integrateStep(st) {
+  const B = getBField(st.x, st.y);
+  const ax = Q * B * st.vy, ay = -Q * B * st.vx;
+  st.vx += ax * DT;
+  st.vy += ay * DT;
+  st.x += st.vx * DT;
+  st.y += st.vy * DT;
+  return st;
+}
+// 预测线：从发射源出发跑 STEPS 步（与实飞同一积分器）
+function computeTrajectory() {
+  let st = { x: SRC.x, y: SRC.y, vx: V0, vy: 0 };
+  const pts = [{ x: st.x, y: st.y }];
+  for (let i = 0; i < STEPS; i++) {
+    integrateStep(st);
+    pts.push({ x: st.x, y: st.y });
+    if (st.x < -OOB || st.x > W + OOB || st.y < -OOB || st.y > H + OOB) break;
+  }
+  return pts;
+}
+function hitTarget(p) { return Math.hypot(p.x - TGT.x, p.y - TGT.y) <= TGT_R; }
+function outOfBounds(p) {
+  return p.x < -OOB || p.x > W + OOB || p.y < -OOB || p.y > H + OOB;
+}
+
+// ===== 绘制 =====
+function drawGrid() {
+  ctx.strokeStyle = "rgba(255,255,255,0.04)";
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= W; x += 40) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y <= H; y += 40) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+}
+// 磁场等高线（强度分层）
+function drawField() {
+  for (const p of poles) {
+    const col = p.strength > 0 ? "78,161,255" : p.strength < 0 ? "255,107,107" : "150,150,150";
+    for (let r = 30; r <= 260; r += 30) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(" + col + ",0.09)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+}
+// 磁场矢量场（2D 磁单极子近似）：B ∝ Σ strength·r̂ / d²，多极叠加产生弯曲/偶极回线
+function fieldVec(x, y) {
+  let bx = 0, by = 0;
+  for (const p of poles) {
+    let dx = x - p.x, dy = y - p.y;
+    let d = Math.hypot(dx, dy);
+    if (d < MIN_D) d = MIN_D;
+    const f = p.strength / (d * d);
+    bx += f * dx / d;
+    by += f * dy / d;
+  }
+  return { bx, by };
+}
+// 磁场流线（真实积分）：从每个磁极周缘播种，沿矢量场积分出曲线；双层描边(外晕+内芯)+流光虚线+末端箭头+距离衰减
+function drawFieldLines() {
+  ctx.save();
+  ctx.setLineDash([6, 10]);
+  ctx.lineDashOffset = -((simTime * 34) % 16);   // 流光流动
+  for (const p of poles) {
+    const isN = p.strength >= 0;
+    const col = isN ? "140,196,255" : "255,150,150";   // 提亮基色，更接近发光感
+    const N = 22, dir = isN ? 1 : -1;                  // N 向外、S 向内
+    for (let i = 0; i < N; i++) {
+      const ang = (i / N) * Math.PI * 2 + (isN ? 0 : Math.PI / N);
+      let x = p.x + Math.cos(ang) * (POLE_R + 4);
+      let y = p.y + Math.sin(ang) * (POLE_R + 4);
+      const pts = [{ x, y }];
+      let lx = x, ly = y, ldx = Math.cos(ang), ldy = Math.sin(ang);
+      for (let s = 0; s < 190; s++) {
+        const fv = fieldVec(x, y);
+        const mag = Math.hypot(fv.bx, fv.by);
+        if (mag < 1e-7) break;
+        const vx = fv.bx / mag * dir, vy = fv.by / mag * dir;
+        x += vx * 6; y += vy * 6;
+        pts.push({ x, y });
+        lx = x; ly = y; ldx = vx; ldy = vy;
+        if (x < -30 || x > W + 30 || y < -30 || y > H + 30) break;
+      }
+      const dist = Math.hypot(lx - p.x, ly - p.y);
+      const aCore = Math.max(0.2, 0.75 - dist / 1000);  // 距磁极越远越淡（更亮、衰减更慢）
+      // 外晕（宽、淡）
+      ctx.lineWidth = 3.4;
+      ctx.strokeStyle = "rgba(" + col + "," + (aCore * 0.28).toFixed(3) + ")";
+      ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+      for (let j = 1; j < pts.length; j++) ctx.lineTo(pts[j].x, pts[j].y);
+      ctx.stroke();
+      // 内芯（细、亮）
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = "rgba(" + col + "," + aCore.toFixed(3) + ")";
+      ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+      for (let j = 1; j < pts.length; j++) ctx.lineTo(pts[j].x, pts[j].y);
+      ctx.stroke();
+      // 末端方向箭头（醒目）
+      const aAng = Math.atan2(ldy, ldx);
+      ctx.setLineDash([]);
+      ctx.fillStyle = "rgba(" + col + ",0.9)";
+      ctx.beginPath();
+      ctx.moveTo(lx, ly);
+      ctx.lineTo(lx - 9 * Math.cos(aAng - 0.42), ly - 9 * Math.sin(aAng - 0.42));
+      ctx.lineTo(lx - 9 * Math.cos(aAng + 0.42), ly - 9 * Math.sin(aAng + 0.42));
+      ctx.closePath(); ctx.fill();
+      ctx.setLineDash([6, 10]);
+    }
+  }
+  ctx.restore();
+}
+function drawTrajectory(pts) {
+  if (pts.length < 2) return;
+  ctx.save();
+  ctx.setLineDash([6, 6]);
+  ctx.strokeStyle = "rgba(200,210,230,0.55)";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // 末端箭头
+  const a = pts[pts.length - 2], b = pts[pts.length - 1];
+  const ang = Math.atan2(b.y - a.y, b.x - a.x);
+  ctx.fillStyle = "rgba(200,210,230,0.7)";
+  ctx.beginPath();
+  ctx.moveTo(b.x, b.y);
+  ctx.lineTo(b.x - 8 * Math.cos(ang - 0.4), b.y - 8 * Math.sin(ang - 0.4));
+  ctx.lineTo(b.x - 8 * Math.cos(ang + 0.4), b.y - 8 * Math.sin(ang + 0.4));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+function drawSource() {
+  ctx.strokeStyle = "#9aa7c4";
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(SRC.x, SRC.y, SRC_R, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = "#9aa7c4";
+  ctx.font = "11px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+  ctx.fillText("发射源", SRC.x, SRC.y - SRC_R - 6);
+}
+function drawTarget() {
+  const glow = targetGlow;
+  ctx.strokeStyle = glow > 0 ? "#7CFFB0" : "#54d6a0";
+  ctx.lineWidth = glow > 0 ? 3 : 2;
+  ctx.beginPath(); ctx.arc(TGT.x, TGT.y, TGT_R, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(TGT.x - TGT_R, TGT.y); ctx.lineTo(TGT.x + TGT_R, TGT.y);
+  ctx.moveTo(TGT.x, TGT.y - TGT_R); ctx.lineTo(TGT.x, TGT.y + TGT_R);
+  ctx.stroke();
+  if (glow > 0) {
+    ctx.fillStyle = "rgba(84,214,160," + (0.1 + 0.3 * glow).toFixed(3) + ")";
+    ctx.beginPath(); ctx.arc(TGT.x, TGT.y, TGT_R, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.fillStyle = "#54d6a0";
+  ctx.font = "11px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+  ctx.fillText("靶标", TGT.x, TGT.y + TGT_R + 14);
+}
+function drawPole() {
+  for (const p of poles) {
+    const col = p.strength > 0 ? "#4ea1ff" : p.strength < 0 ? "#ff6b6b" : "#888";
+    const label = p.strength > 0 ? "N" : p.strength < 0 ? "S" : "0";
+    if (p === selected) {           // 选中环（黄）
+      ctx.beginPath(); ctx.arc(p.x, p.y, POLE_R + 9, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(255,221,87,0.9)"; ctx.lineWidth = 2; ctx.stroke();
+    }
+    if (dragging === p) {
+      ctx.beginPath(); ctx.arc(p.x, p.y, POLE_R + 6, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.12)"; ctx.fill();
+    }
+    ctx.beginPath(); ctx.arc(p.x, p.y, POLE_R, 0, Math.PI * 2);
+    ctx.globalAlpha = 0.92; ctx.fillStyle = col; ctx.fill(); ctx.globalAlpha = 1;
+    ctx.fillStyle = "#0a0a0f";
+    ctx.font = "bold 16px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(label, p.x, p.y);
+  }
+}
+function drawParticles() {
+  for (const p of particles) {
+    // 尾迹
+    ctx.strokeStyle = "rgba(248,113,113,0.35)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < p.trail.length; i++) {
+      const t = p.trail[i];
+      if (i === 0) ctx.moveTo(t.x, t.y); else ctx.lineTo(t.x, t.y);
+    }
+    ctx.stroke();
+    // 本体 4px + 8px 速度方向线
+    ctx.fillStyle = "#f87171";
+    ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill();
+    const sp = Math.hypot(p.vx, p.vy) || 1;
+    ctx.strokeStyle = "#fca5a5"; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    ctx.lineTo(p.x + p.vx / sp * 8, p.y + p.vy / sp * 8);
+    ctx.stroke();
+  }
+}
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = "#0a0a0f"; ctx.fillRect(0, 0, W, H);
+  drawGrid();
+  drawField();
+  drawFieldLines();                            // 磁场流线
+  drawTrajectory(computeTrajectory());        // 预测线：始终显示（下一发脉冲路径）
+  drawSource();
+  drawTarget();
+  drawPole();
+  drawParticles();
+}
+
+// ===== 主循环 =====
+function loop(ts) {
+  const dt = lastT ? Math.min(0.05, (ts - lastT) / 1000) : 0.016;
+  lastT = ts;
+  simTime += dt;
+  // 自动脉冲发射
+  if (running) {
+    pulseTimer += dt;
+    if (pulseTimer >= PULSE_INTERVAL) {
+      pulseTimer -= PULSE_INTERVAL;
+      if (particles.length < MAX_PARTICLES)
+        particles.push({ x: SRC.x, y: SRC.y, vx: V0, vy: 0, trail: [] });
+    }
+  }
+  // 实飞更新（无寿命，仅出界/命中结束）
+  for (let k = particles.length - 1; k >= 0; k--) {
+    const p = particles[k];
+    for (let i = 0; i < SUB; i++) {
+      integrateStep(p);
+      p.trail.push({ x: p.x, y: p.y });
+      if (p.trail.length > 200) p.trail.shift();
+      if (hitTarget(p)) {
+        hitCount++; targetGlow = 1;
+        setStatus("命中靶标！累计 " + hitCount + " 次脉冲", true);
+        particles.splice(k, 1); break;
+      }
+      if (outOfBounds(p)) { particles.splice(k, 1); break; }
+    }
+  }
+  if (targetGlow > 0) targetGlow = Math.max(0, targetGlow - dt * 1.6);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// ===== 交互 =====
+function evtPos(e) {
+  const r = canvas.getBoundingClientRect();
+  return { x: (e.clientX - r.left) * (W / r.width), y: (e.clientY - r.top) * (H / r.height) };
+}
+function onDown(e) {
+  const p = evtPos(e);
+  for (const pole of poles) {
+    if (Math.hypot(p.x - pole.x, p.y - pole.y) <= POLE_R) {
+      dragging = pole;
+      selected = pole;                       // 点击即选中
+      dragOffset = { x: p.x - pole.x, y: p.y - pole.y };
+      strengthEl.value = pole.strength; strVal.textContent = pole.strength.toFixed(1);
+      canvas.style.cursor = "grabbing";
+      break;
+    }
+  }
+}
+function onContext(e) {
+  e.preventDefault();                        // 右键删除磁极
+  const p = evtPos(e);
+  for (let i = 0; i < poles.length; i++) {
+    if (Math.hypot(p.x - poles[i].x, p.y - poles[i].y) <= POLE_R) {
+      if (poles.length > 1) {
+        if (selected === poles[i]) selected = poles[(i + 1) % poles.length];
+        poles.splice(i, 1);
+        strengthEl.value = selected.strength; strVal.textContent = selected.strength.toFixed(1);
+        setStatus("已删除一个磁极，剩余 " + poles.length + " 个", null);
+      } else {
+        setStatus("至少保留一个磁极", null);
+      }
+      break;
+    }
+  }
+}
+function onMove(e) {
+  const p = evtPos(e);
+  if (dragging) {
+    dragging.x = Math.max(30, Math.min(W - 30, p.x - dragOffset.x));
+    dragging.y = Math.max(30, Math.min(H - 30, p.y - dragOffset.y));
+  } else {
+    const hover = poles.some(pole => Math.hypot(p.x - pole.x, p.y - pole.y) <= POLE_R);
+    canvas.style.cursor = hover ? "grab" : "default";
+  }
+}
+function onUp() { dragging = null; canvas.style.cursor = "default"; }
+
+canvas.addEventListener("pointerdown", onDown);
+canvas.addEventListener("pointermove", onMove);
+window.addEventListener("pointerup", onUp);
+canvas.addEventListener("contextmenu", onContext);
+
+strengthEl.addEventListener("input", () => {
+  const v = parseFloat(strengthEl.value);
+  if (selected) selected.strength = v;       // 只改选中磁极
+  strVal.textContent = v.toFixed(1);
+});
+flipBtn.addEventListener("click", () => {
+  if (!selected) return;
+  const v = -selected.strength;
+  selected.strength = v;
+  strengthEl.value = v;
+  strVal.textContent = v.toFixed(1);
+});
+function addPole() {
+  if (poles.length >= MAX_POLES) { setStatus("磁极数量已达上限 (" + MAX_POLES + ")", null); return; }
+  const x = Math.max(40, Math.min(W - 40, W / 2 + (Math.random() * 140 - 70)));
+  const y = Math.max(40, Math.min(H - 40, H / 2 + (Math.random() * 140 - 70)));
+  const pol = { x, y, strength: 5.0 };   // 默认 N 极，极性随时用滑杆/翻转调整
+  poles.push(pol); selected = pol;
+  strengthEl.value = pol.strength; strVal.textContent = pol.strength.toFixed(1);
+  setStatus("已添加磁极，共 " + poles.length + " 个（极性用滑杆/翻转键调整）", null);
+}
+addBtn.addEventListener("click", addPole);
+pauseBtn.addEventListener("click", () => {
+  running = !running;
+  pauseBtn.textContent = running ? "暂停" : "继续";
+  setStatus(running ? "自动脉冲发射中 · 累计命中 " + hitCount + " 次" : "已暂停", null);
+});
+resetBtn.addEventListener("click", () => {
+  poles = [{ x: W / 2, y: 140, strength: 5.0 }];
+  selected = poles[0];
+  strengthEl.value = 5.0; strVal.textContent = "5.0";
+  particles = []; hitCount = 0; targetGlow = 0; pulseTimer = 0; running = true;
+  pauseBtn.textContent = "暂停";
+  setStatus("自动脉冲发射中 · 拖拽磁极或调节强度，让粒子命中右侧靶标", null);
+});
+
+function setStatus(t, ok) {
+  statusEl.textContent = t;
+  statusEl.className = "status" + (ok === true ? " ok" : ok === false ? " bad" : "");
+}
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
